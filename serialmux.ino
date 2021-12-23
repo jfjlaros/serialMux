@@ -2,8 +2,8 @@
 
 #include "mux.h"
 
-Mux muxA(Serial, 1);
-Mux muxB(Serial, 2);
+Mux muxA(Serial);
+Mux muxB(Serial);
 
 uint8_t inc(uint8_t a) {
   return a + 1;
