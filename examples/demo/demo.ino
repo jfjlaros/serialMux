@@ -15,7 +15,7 @@ void setup(void) {
 }
 
 void loop(void) {
-  static uint16_t count = 0;
+  static uint32_t count = 0;
 
   interface(
     muxA,
@@ -26,5 +26,5 @@ void loop(void) {
     muxB.println(millis());
   }
 
-  count++;
+  count += 8192;
 }
