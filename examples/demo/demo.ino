@@ -1,9 +1,9 @@
+#include <serialMux.h>
 #include <simpleRPC.h>
 
-#include "mux.h"
+SerialMux muxA(Serial);
+SerialMux muxB(Serial);
 
-Mux muxA(Serial);
-Mux muxB(Serial);
 
 uint8_t inc(uint8_t a) {
   return a + 1;

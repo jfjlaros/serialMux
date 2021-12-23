@@ -1,16 +1,21 @@
+#ifndef SERIALMUX_H_
+#define SERIALMUX_H_
+
 #include <Arduino.h>
 
-class Mux : public Stream {
+class SerialMux : public Stream {
   public:
-    Mux(Stream&);
+    SerialMux(Stream&);
     int available(void);
     int read(void);
     size_t write(uint8_t);
     int peek(void);
   private:
-    void _control(void);
-    static uint8_t _ids;
     static bool _enabled;
-    Stream* _serial;
+    static uint8_t _ids;
     uint8_t _id;
+    Stream* _serial;
+    void _control(void);
 };
+
+#endif

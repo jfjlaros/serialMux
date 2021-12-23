@@ -1,27 +1,34 @@
-#include "mux.h"
+#include "serialMux.h"
 
-uint8_t Mux::_ids = 0;
-bool Mux::_enabled = false;
+#define CMD_GET_PORTS 0
+#define CMD_ENABLE 1
+#define CMD_DISABLE 2
+#define CMD_RESET 3
 
-Mux::Mux(Stream& serial) {
+
+bool SerialMux::_enabled = false;
+uint8_t SerialMux::_ids = 0;
+
+
+SerialMux::SerialMux(Stream& serial) {
   _serial = &serial;
   _ids++;
   _id = _ids;
 }
 
-void Mux::_control(void) {
+void SerialMux::_control(void) {
   _serial->write('\0');
   switch (read()) {
-    case 0:
+    case CMD_GET_PORTS:
       _serial->write(_ids);
       return;
-    case 1:
-      Mux::_enabled = true;
+    case CMD_ENABLE:
+      SerialMux::_enabled = true;
       break;
-    case 2:
-      Mux::_enabled = false;
+    case CMD_DISABLE:
+      SerialMux::_enabled = false;
       break;
-    case 3:
+    case CMD_RESET:
       while (_serial->available()) {
         _serial->read();
       }
@@ -31,7 +38,7 @@ void Mux::_control(void) {
   _serial->write('\0');
 }
 
-int Mux::available(void) {
+int SerialMux::available(void) {
   if (_serial->available()) {
     uint8_t data = _serial->peek();
 
@@ -45,14 +52,14 @@ int Mux::available(void) {
   return 0;
 }
 
-int Mux::read(void) {
+int SerialMux::read(void) {
   while (!_serial->available());
   _serial->read();
   while (!_serial->available());
   return _serial->read();
 }
 
-size_t Mux::write(uint8_t data) {
+size_t SerialMux::write(uint8_t data) {
   if (!_enabled) {
     return 0;
   }
@@ -62,6 +69,6 @@ size_t Mux::write(uint8_t data) {
   return _serial->write(data);
 }
 
-int Mux::peek(void) {
+int SerialMux::peek(void) {
   return _serial->peek();
 }
