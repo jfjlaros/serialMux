@@ -9,17 +9,15 @@ void setup(void) {
 }
 
 void loop(void) {
-  static uint8_t count = 0;
+  static uint16_t count = 0;
 
   if (muxA.available()) {
     muxA.write(muxA.read() + 1);
   }
-  delay(50);
 
   if (!count) {
-    //muxB.print("System time: ");
-    //muxB.println(millis());
-    muxB.print(".");
+    muxB.print("System time: ");
+    muxB.println(millis());
   }
 
   count++;

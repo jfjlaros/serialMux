@@ -16,6 +16,7 @@ int Mux::available(void) {
 }
 
 int Mux::read(void) {
+  while (!_serial->available());
   return _serial->read();
 }
 
