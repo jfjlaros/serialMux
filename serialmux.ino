@@ -14,14 +14,12 @@ void loop(void) {
   if (muxA.available()) {
     muxA.write(muxA.read() + 1);
   }
-  while (muxB.available()) {
-    muxB.read();
-  }
-  delay(100);
+  delay(50);
 
   if (!count) {
-    muxB.print("System time: ");
-    muxB.println(millis());
+    //muxB.print("System time: ");
+    //muxB.println(millis());
+    muxB.print(".");
   }
 
   count++;
