@@ -7,15 +7,12 @@ Mux::Mux(Stream& serial, uint8_t id) {
 }
 
 int Mux::available(void) {
-  if (_serial->available() && _serial->peek() == _id) {
-    _serial->read();
-
-    return 1;
-  }
-  return 0;
+  return _serial->available() && _serial->peek() == _id;
 }
 
 int Mux::read(void) {
+  while (!_serial->available());
+  _serial->read();
   while (!_serial->available());
   return _serial->read();
 }
