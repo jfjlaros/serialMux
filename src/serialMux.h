@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+/*!
+ * Serial multiplexer.
+ */
 class SerialMux : public Stream {
   public:
     SerialMux(Stream&);
