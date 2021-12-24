@@ -5,8 +5,8 @@ Usage
 
     #include <serialMux.h>
 
-    Mux muxA(Serial);
-    Mux muxB(Serial);
+    SerialMux muxA(Serial);
+    SerialMux muxB(Serial);
 
 
     void setup(void) {
@@ -24,8 +24,8 @@ Usage
 
     HardwareSerial& masterSerial = Serial;
 
-    Mux muxA(masterSerial);
-    Mux muxB(masterSerial);
+    SerialMux muxA(masterSerial);
+    SerialMux muxB(masterSerial);
 
     #define Serial muxB
 
