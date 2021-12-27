@@ -8,12 +8,13 @@
 
 bool SerialMux::_enabled = false;
 uint8_t SerialMux::_ids = 0;
+uint8_t SerialMux::_lock = 0;
 
 
 /*!
-  * Constructor.
-  *
-  * \param serial Serial device.
+ * Constructor.
+ *
+ * \param serial Serial device.
  */
 SerialMux::SerialMux(Stream& serial) {
   _serial = &serial;
@@ -22,13 +23,30 @@ SerialMux::SerialMux(Stream& serial) {
 }
 
 /*
+ * Read incoming data.
+ */
+int SerialMux::_read(void) {
+  while (!_serial->available());
+  return _serial->read();
+}
+
+/*
+ * Write outgoing data.
+ */
+size_t SerialMux::_write(uint8_t data) {
+  return _serial->write(data);
+}
+
+/*
  * Control channel operations.
  */
 void SerialMux::_control(void) {
-  _serial->write('\0');
-  switch (read()) {
+  _read();
+  _write('\0');
+  _write('\1');
+  switch (_read()) {
     case CMD_GET_PORTS:
-      _serial->write(_ids);
+      _write(_ids);
       return;
     case CMD_ENABLE:
       SerialMux::_enabled = true;
@@ -38,12 +56,11 @@ void SerialMux::_control(void) {
       break;
     case CMD_RESET:
       while (_serial->available()) {
-        _serial->read();
+        _read();
       }
-      _serial->flush();
       break;
   }
-  _serial->write('\0');
+  _write('\0');
 }
 
 /*!
@@ -52,17 +69,17 @@ void SerialMux::_control(void) {
  * \return Number of bytes.
  */
 int SerialMux::available(void) {
-  if (_serial->available()) {
-    uint8_t data = _serial->peek();
-
-    if (!data) {
+  if (!_lock && _serial->available()) {
+    _lock = _read();
+    if (!_lock) {
       _control();
     }
-    if (_enabled && data == _id) {
-      return 1;
+
+    if (_enabled && _lock == _id) {
+      _available = _read();
     }
   }
-  return 0;
+  return _available;
 }
 
 /*!
@@ -71,10 +88,39 @@ int SerialMux::available(void) {
  * \return The first byte of incoming data or -1 if no data is available.
  */
 int SerialMux::read(void) {
-  while (!_serial->available());
-  _serial->read();
-  while (!_serial->available());
-  return _serial->read();
+  if (available() && _lock == _id) {
+    _available--;
+    if (!_available) {
+      _lock = 0;
+    }
+    return _read();
+  }
+  return -1;
+}
+
+/*!
+ * Read incoming data.
+ *
+ * \param data Data.
+ * \param size Data size.
+ *
+ * \return Number of bytes written.
+ */
+size_t SerialMux::readBytes(uint8_t* data, size_t size) {
+  if (_available && _lock == _id) {
+    size_t i;
+    for (i = 0; i < size; i++) {
+      data[i] = _read();
+
+      _available--;
+      if (!_available) {
+        _lock = 0;
+        return i + 1;
+      }
+    }
+    return size;
+  }
+  return 0;
 }
 
 /*!
@@ -85,13 +131,32 @@ int SerialMux::read(void) {
  * \return Number of bytes written.
  */
 size_t SerialMux::write(uint8_t data) {
-  if (!_enabled) {
-    return 0;
+  if (_enabled) {
+    _write(_id);
+    _write('\1');
+    return _write(data);
   }
+  return 0;
+}
 
-  _serial->write(_id);
+/*!
+ * Write outgoing data.
+ *
+ * \param data Data.
+ * \param size Data size.
+ *
+ * \return Number of bytes written.
+ */
+size_t SerialMux::write(uint8_t* data, size_t size) {
+  if (_enabled) {
+    _write(_id);
+    _write((uint8_t)size);
 
-  return _serial->write(data);
+    size_t i;
+    for (i = 0; i < size && _write(data[i]); i++);
+    return i;
+  }
+  return 0;
 }
 
 /*!
