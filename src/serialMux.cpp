@@ -1,11 +1,5 @@
 #include "serialMux.h"
 
-#define CMD_GET_PORTS 0  //!< Get ports control command.
-#define CMD_ENABLE 1     //!< Enable control command.
-#define CMD_DISABLE 2    //!< Disable control command.
-#define CMD_RESET 3      //!< Reset control command.
-
-
 bool SerialMux::_enabled = false;
 uint8_t SerialMux::_ids = 0;
 uint8_t SerialMux::_lock = 0;
@@ -166,5 +160,8 @@ size_t SerialMux::write(uint8_t* data, size_t size) {
  * \return The first byte of incoming data or -1 if no data is available.
  */
 int SerialMux::peek(void) {
-  return _serial->peek();
+  if (available()) {
+    return _serial->peek();
+  }
+  return -1;
 }
