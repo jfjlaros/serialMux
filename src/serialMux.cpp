@@ -153,6 +153,14 @@ size_t SerialMux::write(uint8_t* data, size_t size) {
   return 0;
 }
 
+size_t SerialMux::print(char const data[]) {
+  return write((uint8_t*)data, strlen(data));
+}
+
+size_t SerialMux::print(String& data) {
+  return write((uint8_t*)data.c_str(), data.length());
+}
+
 /*!
  * Return the next byte of incoming data without removing it from the
  * internal buffer.

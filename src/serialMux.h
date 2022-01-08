@@ -3,10 +3,11 @@
 
 #include <Arduino.h>
 
-#define CMD_GET_PORTS '\0'  //!< Get ports control command.
-#define CMD_ENABLE    '\1'  //!< Enable control command.
-#define CMD_DISABLE   '\2'  //!< Disable control command.
-#define CMD_RESET     '\3'  //!< Reset control command.
+// Control commands.
+#define CMD_GET_PORTS '\0'
+#define CMD_ENABLE    '\1'
+#define CMD_DISABLE   '\2'
+#define CMD_RESET     '\3'
 
 /*!
  * Serial multiplexer.
@@ -19,6 +20,8 @@ class SerialMux : public Stream {
     size_t readBytes(uint8_t*, size_t);
     size_t write(uint8_t);
     size_t write(uint8_t*, size_t);
+    size_t print(char const[]);
+    size_t print(String&);
     int peek(void);
   private:
     static bool _enabled;

@@ -24,63 +24,34 @@ Serial Multiplexer for Arduino
 
 ----
 
-.. class:: center
+**UNDER CONSTRUCTION**
 
-    **UNDER CONSTRUCTION**
+This library provides a simple way to create multiple virtual serial devices
+that communicate over one physical serial connection. A virtual device can be
+used as a drop-in replacement for ``Stream`` like objects such as ``Serial``.
 
-Please see the usage_ examples and demo_.
+Please see ReadTheDocs_ for the latest documentation.
 
 
-.. _usage: https://github.com/jfjlaros/serialMux/blob/master/docs/usage.rst
-.. _demo: https://github.com/jfjlaros/serialMux/blob/master/examples/demo/demo.ino
+Quick start
+-----------
 
-----
+.. code-block:: cpp
 
-Todo:
+    #include <serialMux.h>
 
-- Discard input after timeout to prevent locking.
+    SerialMux muxA(Serial);
+    SerialMux muxB(Serial);
 
-.. list-table:: Packet structure.
-   :header-rows: 1
+    void setup(void) {
+      Serial.begin(9600);
+    }
 
-   * - offset
-     - length
-     - description
-   * - 0
-     - 1
-     - virtual port
-   * - 1
-     - 1
-     - length
-   * - 2
-     - length
-     - data
+    void loop(void) {
+      muxA.println("This is a message from virtual device 1.");
+      muxB.println("This is a message from virtual device 2.");
+      delay(1000);
+    }
 
-Control messages are used to set up the multiplexed connections, they are
-sent to virtual port ``0``.
 
-.. list-table:: Control messages.
-   :header-rows: 1
-
-   * - message
-     - response
-     - description
-   * - 0
-     - Number of virtual ports.
-     - Get the number of virtual ports.
-   * - 1
-     - ``0x00``
-     - Enable multiplexer.
-   * - 2
-     - ``0x00``
-     - Disable multiplexer.
-   * - 3
-     - ``0x00``
-     - Reset.
-
-A typical initialisation procedure looks as follows.
-
-1. The host requests the number of virtual ports (``0x00, 0x01, 0x00``).
-2. The device sends the number of virtual ports (e.g., ``0x00, 0x01, 0x02``).
-3. The host sets up pseudo terminals that connect to the virtual ports.
-4. The host send the enable command (``0x00, 0x01, 0x01``).
+.. _ReadTheDocs: https://serialmux.readthedocs.io
