@@ -1,4 +1,4 @@
-Serial Multiplexer for Arduino
+Serial multiplexer for Arduino
 ==============================
 
 .. image:: https://img.shields.io/github/last-commit/jfjlaros/serialMux.svg

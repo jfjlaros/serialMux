@@ -34,6 +34,7 @@ device.
       delay(1000);
     }
 
+
 Hard coded ``Serial`` workaround
 --------------------------------
 

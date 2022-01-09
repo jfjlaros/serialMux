@@ -3,6 +3,7 @@ Protocol
 
 In this section we describe the serialMux protocol.
 
+
 Packets
 -------
 
@@ -30,6 +31,7 @@ The first virtual device has port number ``1``, the second ``2``, etc.
 Virtual port number ``0`` is reserved for control messages. The maximum
 number of virtual devices is 254 and the length of the message is limited to
 255 bytes.
+
 
 Control messages
 ----------------

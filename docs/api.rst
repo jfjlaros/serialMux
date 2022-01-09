@@ -5,6 +5,7 @@ API documentation
 
     #include <serialMux.h>
 
+
 Class definition
 ----------------
 
