@@ -81,29 +81,13 @@ int SerialMux::available(void) {
 /*!
  * Read incoming data.
  *
- * \return The first byte of incoming data or -1 if no data is available.
- */
-int SerialMux::read(void) {
-  if (available() && _lock == _id) {
-    _available--;
-    if (!_available) {
-      _lock = 0;
-    }
-    return _read();
-  }
-  return -1;
-}
-
-/*!
- * Read incoming data.
- *
  * \param data Data.
  * \param size Data size.
  *
- * \return Number of bytes written.
+ * \return Number of bytes read.
  */
 size_t SerialMux::readBytes(uint8_t* data, size_t size) {
-  if (_available && _lock == _id) {
+  if (available()) {
     size_t i;
     for (i = 0; i < size; i++) {
       data[i] = _read();
@@ -120,19 +104,16 @@ size_t SerialMux::readBytes(uint8_t* data, size_t size) {
 }
 
 /*!
- * Write outgoing data.
+ * Read incoming data.
  *
- * \param data Data.
- *
- * \return Number of bytes written.
+ * \return The first byte of incoming data or -1 if no data is available.
  */
-size_t SerialMux::write(uint8_t data) {
-  if (_enabled) {
-    _write(_id);
-    _write('\1');
-    return _write(data);
+int SerialMux::read(void) {
+  uint8_t data;
+  if (readBytes(&data, 1)) {
+    return data;
   }
-  return 0;
+  return -1;
 }
 
 /*!
@@ -155,6 +136,24 @@ size_t SerialMux::write(uint8_t* data, size_t size) {
   return 0;
 }
 
+/*!
+ * Write outgoing data.
+ *
+ * \param data Data.
+ *
+ * \return Number of bytes written.
+ */
+size_t SerialMux::write(uint8_t data) {
+  return write(&data, 1);
+}
+
+/*
+size_t SerialMux::write(uint8_t* data) {
+  return write(data, strlen((char*)data));
+}
+*/
+
+/*
 size_t SerialMux::print(char const data[]) {
   return write((uint8_t*)data, strlen(data));
 }
@@ -162,6 +161,11 @@ size_t SerialMux::print(char const data[]) {
 size_t SerialMux::print(String& data) {
   return write((uint8_t*)data.c_str(), data.length());
 }
+
+size_t SerialMux::println(char const data[]) {
+  return write((uint8_t*)data.c_str(), data.length());
+}
+*/
 
 /*!
  * Return the next byte of incoming data without removing it from the

@@ -16,12 +16,15 @@ class SerialMux : public Stream {
   public:
     SerialMux(Stream&);
     int available(void);
-    int read(void);
     size_t readBytes(uint8_t*, size_t);
-    size_t write(uint8_t);
+    int read(void);
     size_t write(uint8_t*, size_t);
+    size_t write(uint8_t);
+    //size_t write(uint8_t*);
+    /*
     size_t print(char const[]);
     size_t print(String&);
+    */
     int peek(void);
   private:
     static bool _enabled;
