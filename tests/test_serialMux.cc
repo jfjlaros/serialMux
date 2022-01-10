@@ -12,12 +12,6 @@ void _checkEmpty(SerialMux& mux) {
   REQUIRE(mux.available() == 0);
 }
 
-void _checkAvailable(SerialMux& mux, size_t size) {
-  REQUIRE(Serial.available() == size + 2);
-  REQUIRE(mux.available() == size);
-  REQUIRE(Serial.available() == size);
-}
-
 
 void _checkTx(void) {}
 
@@ -56,7 +50,10 @@ TEST_CASE("Enable", "[control][read][write][peek][port1][port2]") {
 TEST_CASE("One byte available, port 1", "[read][peek][port1]") {
   // Send one byte to port 1.
   Serial.prepare('\1', '\1', '\2');
-  _checkAvailable(muxA, 1);
+  
+  REQUIRE(Serial.available() == 3);
+  REQUIRE(muxA.available() == 1);
+  REQUIRE(Serial.available() == 1);
   REQUIRE(muxB.available() == 0);
 }
 
@@ -67,6 +64,7 @@ TEST_CASE("Peek byte, port 1", "[peek][port1]") {
 
 TEST_CASE("Read byte, port 1", "[read][peek][port1]") {
   REQUIRE(muxA.read() == '\2');
+  REQUIRE(muxB.read() == -1);
   _checkEmpty(muxA);
   _checkEmpty(muxB);
 }
@@ -75,7 +73,9 @@ TEST_CASE("Read byte, port 1", "[read][peek][port1]") {
 TEST_CASE("One byte available, port 2", "[read][peek][port2]") {
   // Send one byte to port 2.
   Serial.prepare('\2', '\1', '\2');
-  _checkAvailable(muxB, 1);
+  REQUIRE(Serial.available() == 3);
+  REQUIRE(muxB.available() == 1);
+  REQUIRE(Serial.available() == 1);
   REQUIRE(muxA.available() == 0);
 }
 
@@ -86,6 +86,32 @@ TEST_CASE("Peek byte, port 2", "[peek][port2]") {
 
 TEST_CASE("Read byte, port 2", "[read][peek][port2]") {
   REQUIRE(muxB.read() == '\2');
+  REQUIRE(muxA.read() == -1);
+  _checkEmpty(muxB);
+  _checkEmpty(muxA);
+}
+
+
+TEST_CASE("One byte available, port 1, wrong order", "[read][peek][port1]") {
+  // Send one byte to port 1.
+  Serial.prepare('\1', '\1', '\2');
+  
+  REQUIRE(Serial.available() == 3);
+  REQUIRE(muxB.available() == 0);
+  REQUIRE(Serial.available() == 2);
+  REQUIRE(muxA.available() == 1);
+  REQUIRE(Serial.available() == 1);
+  REQUIRE(muxB.available() == 0);
+}
+
+TEST_CASE("Peek byte, port 1, wrong order", "[peek][port1]") {
+  REQUIRE(muxB.peek() == -1);
+  REQUIRE(muxA.peek() == '\2');
+}
+
+TEST_CASE("Read byte, port 1, wrong order", "[read][peek][port1]") {
+  REQUIRE(muxB.read() == -1);
+  REQUIRE(muxA.read() == '\2');
   _checkEmpty(muxB);
   _checkEmpty(muxA);
 }
@@ -94,7 +120,9 @@ TEST_CASE("Read byte, port 2", "[read][peek][port2]") {
 TEST_CASE("Multiple bytes available, port 1", "[read][port1]") {
   // Send three bytes to port 1.
   Serial.prepare('\1', '\3', '\0', '\1', '\2');
-  _checkAvailable(muxA, 3);
+  REQUIRE(Serial.available() == 5);
+  REQUIRE(muxA.available() == 3);
+  REQUIRE(Serial.available() == 3);
   REQUIRE(muxB.available() == 0);
 }
 
@@ -110,7 +138,9 @@ TEST_CASE("Read multiple bytes, port 1", "[read][port1]") {
 TEST_CASE("Multiple bytes available, port 2", "[read][port2]") {
   // Send three bytes to port 2.
   Serial.prepare('\2', '\3', '\0', '\1', '\2');
-  _checkAvailable(muxB, 3);
+  REQUIRE(Serial.available() == 5);
+  REQUIRE(muxB.available() == 3);
+  REQUIRE(Serial.available() == 3);
   REQUIRE(muxA.available() == 0);
 }
 

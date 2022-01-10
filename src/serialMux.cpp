@@ -63,12 +63,14 @@ void SerialMux::_control(void) {
  * \return Number of bytes.
  */
 int SerialMux::available(void) {
-  if (!_lock && _serial->available()) {
-    _lock = _read();
+  if (!_available && _serial->available()) {
     if (!_lock) {
-      _control();
+      _lock = _read();
+      if (!_lock) {
+        _control();
+        return 0;
+      }
     }
-
     if (_enabled && _lock == _id) {
       _available = _read();
     }
