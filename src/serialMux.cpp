@@ -16,31 +16,31 @@ SerialMux::SerialMux(Stream& serial) {
   _id = _ids;
 }
 
-/*
- * Read incoming data.
- */
 int SerialMux::_read(void) {
   while (!_serial->available());
   return _serial->read();
 }
 
-/*
- * Write outgoing data.
- */
 size_t SerialMux::_write(uint8_t data) {
   return _serial->write(data);
 }
 
-/*
- * Control channel operations.
- */
-void SerialMux::_control(void) {
-  _read();
+uint8_t SerialMux::_controlRead(void) {
+  _read();  // ID 0.
+  _read();  // Size 1.
+  return _read();
+}
+
+void SerialMux::_controlWrite(uint8_t data) {
   _write('\0');
   _write('\1');
-  switch (_read()) {
+  _write(data);
+}
+
+void SerialMux::_control(void) {
+  switch (_controlRead()) {
     case CMD_GET_PORTS:
-      _write(_ids);
+      _controlWrite(_ids);
       return;
     case CMD_ENABLE:
       SerialMux::_enabled = true;
@@ -54,7 +54,7 @@ void SerialMux::_control(void) {
       }
       break;
   }
-  _write('\0');
+  _controlWrite('\0');
 }
 
 /*!
@@ -65,11 +65,11 @@ void SerialMux::_control(void) {
 int SerialMux::available(void) {
   if (!_available && _serial->available()) {
     if (!_lock) {
-      _lock = _read();
-      if (!_lock) {
+      if (!_serial->peek()) {
         _control();
         return 0;
       }
+      _lock = _read();
     }
     if (_enabled && _lock == _id) {
       _available = _read();
@@ -147,26 +147,6 @@ size_t SerialMux::write(uint8_t data) {
   return write(&data, 1);
 }
 
-/*
-size_t SerialMux::write(uint8_t* data) {
-  return write(data, strlen((char*)data));
-}
-*/
-
-/*
-size_t SerialMux::print(char const data[]) {
-  return write((uint8_t*)data, strlen(data));
-}
-
-size_t SerialMux::print(String& data) {
-  return write((uint8_t*)data.c_str(), data.length());
-}
-
-size_t SerialMux::println(char const data[]) {
-  return write((uint8_t*)data.c_str(), data.length());
-}
-*/
-
 /*!
  * Return the next byte of incoming data without removing it from the
  * internal buffer.
@@ -178,4 +158,22 @@ int SerialMux::peek(void) {
     return _serial->peek();
   }
   return -1;
+}
+
+/*!
+ * Write a C string.
+ *
+ * \param data Data.
+ */
+size_t SerialMux::print(char const data[]) {
+  return write((uint8_t*)data, strlen(data));
+}
+
+/*!
+ * Write a string.
+ *
+ * \param data Data.
+ */
+size_t SerialMux::print(String& data) {
+  return write((uint8_t*)data.c_str(), data.length());
 }

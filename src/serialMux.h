@@ -20,12 +20,11 @@ class SerialMux : public Stream {
     int read(void);
     size_t write(uint8_t*, size_t);
     size_t write(uint8_t);
-    //size_t write(uint8_t*);
-    /*
+    template <class T>
+      size_t write(T);
+    int peek(void);
     size_t print(char const[]);
     size_t print(String&);
-    */
-    int peek(void);
   private:
     static bool _enabled;
     static uint8_t _ids;
@@ -35,7 +34,22 @@ class SerialMux : public Stream {
     Stream* _serial = NULL;
     int _read(void);
     size_t _write(uint8_t);
+    uint8_t _controlRead(void);
+    void _controlWrite(uint8_t);
     void _control(void);
 };
+
+
+/*!
+ * Write outgoing data.
+ *
+ * \param data Data.
+ *
+ * \return Number of bytes written.
+ */
+template <class T>
+size_t SerialMux::write(T data) {
+  return write((uint8_t*)&data, sizeof(T));
+}
 
 #endif
