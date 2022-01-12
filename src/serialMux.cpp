@@ -3,6 +3,7 @@
 bool SerialMux::_enabled = false;
 uint8_t SerialMux::_ids = 0;
 uint8_t SerialMux::_lock = 0;
+uint8_t SerialMux::_available = 0;
 
 
 /*!
@@ -26,8 +27,7 @@ size_t SerialMux::_write(uint8_t data) {
 }
 
 uint8_t SerialMux::_controlRead(void) {
-  _read();  // ID 0.
-  _read();  // Size 1.
+  _available--;
   return _read();
 }
 
@@ -64,18 +64,17 @@ void SerialMux::_control(void) {
  */
 int SerialMux::available(void) {
   if (!_available && _serial->available()) {
+    _lock = _read();
+    _available = _read();
     if (!_lock) {
-      if (!_serial->peek()) {
-        _control();
-        return 0;
-      }
-      _lock = _read();
-    }
-    if (_enabled && _lock == _id) {
-      _available = _read();
+      _control();
+      return 0;
     }
   }
-  return _available;
+  if (_lock == _id) {
+    return _available;
+  }
+  return 0;
 }
 
 /*!

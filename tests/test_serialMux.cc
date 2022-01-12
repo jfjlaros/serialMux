@@ -98,7 +98,7 @@ TEST_CASE("One byte available, port 1, wrong order", "[read][peek][port1]") {
   
   REQUIRE(Serial.available() == 3);
   REQUIRE(muxB.available() == 0);
-  REQUIRE(Serial.available() == 2);
+  REQUIRE(Serial.available() == 1);
   REQUIRE(muxA.available() == 1);
   REQUIRE(Serial.available() == 1);
   REQUIRE(muxB.available() == 0);
@@ -199,4 +199,16 @@ TEST_CASE("Write byte, port 2", "[write][port2]") {
 TEST_CASE("Write multiple bytes, port 2", "[write][port2]") {
   muxB.write((uint8_t*)"\0\1\2", 3);
   _checkTx('\2', '\3', '\0', '\1', '\2');
+}
+
+
+TEST_CASE("Print C string", "[print]") {
+  muxA.print("abc");
+  _checkTx('\1', '\3', 'a', 'b', 'c');
+}
+
+TEST_CASE("Print string", "[print]") {
+  String s("abc");
+  muxA.print(s);
+  _checkTx('\1', '\3', 'a', 'b', 'c');
 }

@@ -29,7 +29,7 @@ class SerialMux : public Stream {
     static bool _enabled;
     static uint8_t _ids;
     static uint8_t _lock;
-    uint8_t _available = 0;
+    static uint8_t _available;
     uint8_t _id = 0;
     Stream* _serial = NULL;
     int _read(void);
