@@ -1,5 +1,4 @@
-#ifndef SERIALMUX_H_
-#define SERIALMUX_H_
+#pragma once
 
 #include <Arduino.h>
 
@@ -25,6 +24,7 @@ class SerialMux : public Stream {
     int peek(void);
     size_t print(char const[]);
     size_t print(String&);
+
   private:
     static bool _enabled;
     static uint8_t _ids;
@@ -32,6 +32,7 @@ class SerialMux : public Stream {
     static uint8_t _available;
     uint8_t _id = 0;
     Stream* _serial = NULL;
+
     int _read(void);
     size_t _write(uint8_t);
     uint8_t _controlRead(void);
@@ -51,5 +52,3 @@ template <class T>
 size_t SerialMux::write(T data) {
   return write((uint8_t*)&data, sizeof(T));
 }
-
-#endif
