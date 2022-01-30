@@ -22,9 +22,9 @@ by a virtual port number and the length of the message.
      - virtual port
    * - 1
      - 1
-     - length
+     - size
    * - 2
-     - length
+     - size
      - data
 
 The first virtual device has port number ``1``, the second ``2``, etc.
@@ -48,24 +48,30 @@ up.
      - response
      - description
    * - 0
+     - ``serialMux\x01\x00\x00``
+     - Protocol identifier and version (major, minor, patch).
+   * - 1
      - Number of virtual ports.
      - Get the number of virtual ports.
-   * - 1
-     - ``0x00``
-     - Enable multiplexer.
    * - 2
      - ``0x00``
-     - Disable multiplexer.
+     - Enable multiplexer.
    * - 3
+     - ``0x00``
+     - Disable multiplexer.
+   * - 4
      - ``0x00``
      - Reset.
 
 A typical initialisation procedure looks as follows.
 
-1. The host requests the number of virtual ports (``0x00, 0x01, 0x00``).
-2. The device sends the number of virtual ports (e.g., ``0x00, 0x01, 0x02``).
-3. The host sets up pseudo terminals that connect to the virtual ports.
-4. The host send the enable command (``0x00, 0x01, 0x01``).
+1. The host asks for the protocol identifier and version (``0x00, 0x01,
+   0x00``).
+2. The device responds with the protocol identifier and version.
+3. The host requests the number of virtual ports (``0x00, 0x01, 0x01``).
+4. The device sends the number of virtual ports (e.g., ``0x00, 0x01, 0x02``).
+5. The host sets up pseudo terminals that connect to the virtual ports.
+6. The host send the enable command (``0x00, 0x01, 0x02``).
 
 After initialisation the first pseudo terminal can be used to communicate
 with the virtual device on port ``1``, the second pseudo terminal can be used

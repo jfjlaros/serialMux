@@ -31,16 +31,21 @@ uint8_t SerialMux::_controlRead(void) {
   return _read();
 }
 
-void SerialMux::_controlWrite(uint8_t data) {
-  _write('\0');
-  _write('\1');
-  _write(data);
+void SerialMux::_controlWrite(uint8_t* data, uint8_t size) {
+  _write('\x00');
+  _write(size);
+  for (uint8_t i = 0; i < size; i++) {
+    _write(data[i]);
+  }
 }
 
 void SerialMux::_control(void) {
   switch (_controlRead()) {
+    case CMD_PROTOCOL:
+      _controlWrite((uint8_t*)_PROTOCOL, sizeof(_PROTOCOL) - 1);
+      return;
     case CMD_GET_PORTS:
-      _controlWrite(_ids);
+      _controlWrite(&_ids, 1);
       return;
     case CMD_ENABLE:
       SerialMux::_enabled = true;
@@ -54,7 +59,7 @@ void SerialMux::_control(void) {
       }
       break;
   }
-  _controlWrite('\0');
+  _controlWrite((uint8_t*)"\x00", 1);
 }
 
 /*!

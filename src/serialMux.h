@@ -2,11 +2,14 @@
 
 #include <Arduino.h>
 
+#define _PROTOCOL "serialMux\x01\x00\x00"
+
 // Control commands.
-#define CMD_GET_PORTS '\0'
-#define CMD_ENABLE    '\1'
-#define CMD_DISABLE   '\2'
-#define CMD_RESET     '\3'
+#define CMD_PROTOCOL  '\x00'
+#define CMD_GET_PORTS '\x01'
+#define CMD_ENABLE    '\x02'
+#define CMD_DISABLE   '\x03'
+#define CMD_RESET     '\x04'
 
 /*!
  * Serial multiplexer.
@@ -36,7 +39,7 @@ class SerialMux : public Stream {
     int _read(void);
     size_t _write(uint8_t);
     uint8_t _controlRead(void);
-    void _controlWrite(uint8_t);
+    void _controlWrite(uint8_t*, uint8_t);
     void _control(void);
 };
 
