@@ -1,65 +1,13 @@
 #include "serialMux.h"
 
-bool SerialMux::_enabled = false;
-uint8_t SerialMux::_ids = 0;
-uint8_t SerialMux::_lock = 0;
-uint8_t SerialMux::_available = 0;
-
-
 /*!
  * Constructor.
  *
  * \param serial Serial device.
  */
-SerialMux::SerialMux(Stream& serial) {
-  _serial = &serial;
+SerialMux::SerialMux(void) {
   _ids++;
   _id = _ids;
-}
-
-int SerialMux::_read(void) {
-  while (!_serial->available());
-  return _serial->read();
-}
-
-size_t SerialMux::_write(uint8_t data) {
-  return _serial->write(data);
-}
-
-uint8_t SerialMux::_controlRead(void) {
-  _available--;
-  return _read();
-}
-
-void SerialMux::_controlWrite(uint8_t* data, uint8_t size) {
-  _write('\x00');
-  _write(size);
-  for (uint8_t i = 0; i < size; i++) {
-    _write(data[i]);
-  }
-}
-
-void SerialMux::_control(void) {
-  switch (_controlRead()) {
-    case CMD_PROTOCOL:
-      _controlWrite((uint8_t*)_PROTOCOL, sizeof(_PROTOCOL) - 1);
-      return;
-    case CMD_GET_PORTS:
-      _controlWrite(&_ids, 1);
-      return;
-    case CMD_ENABLE:
-      SerialMux::_enabled = true;
-      break;
-    case CMD_DISABLE:
-      SerialMux::_enabled = false;
-      break;
-    case CMD_RESET:
-      while (_serial->available()) {
-        _read();
-      }
-      break;
-  }
-  _controlWrite((uint8_t*)"\x00", 1);
 }
 
 /*!
