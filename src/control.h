@@ -11,21 +11,27 @@
 #define CMD_DISABLE   '\x03'
 #define CMD_RESET     '\x04'
 
+/*!
+ */
 class Control {
   public:
-    Control(void) {}
     Control(Stream&);
+    uint8_t add(void);
+    uint8_t available(uint8_t);
+    int16_t peek(uint8_t);
+    uint8_t read(uint8_t, uint8_t*, uint8_t);
+    int16_t read(uint8_t);
+    uint8_t write(uint8_t, uint8_t*, uint8_t);
+    uint8_t write(uint8_t, uint8_t);
 
-  protected:
-    static uint8_t _available;
-    static bool _enabled;
-    static uint8_t _ids;
-    static uint8_t _lock;
-    static Stream* _serial;
+  private:
+    uint8_t _available = 0;
+    bool _enabled = false;
+    uint8_t _ids = 0;
+    uint8_t _lock;
+    Stream* _serial = NULL;
 
-    int _read(void);
-    size_t _write(uint8_t);
-    uint8_t _controlRead(void);
-    void _controlWrite(uint8_t*, uint8_t);
+    uint8_t _read(uint8_t*, uint8_t);
+    uint8_t _write(uint8_t*, uint8_t);
     void _control(void);
 };

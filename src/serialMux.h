@@ -5,9 +5,9 @@
 /*!
  * Serial multiplexer.
  */
-class SerialMux : public Stream, Control {
+class SerialMux : public Stream {
   public:
-    SerialMux(void);
+    SerialMux(Control&);
     int available(void);
     size_t readBytes(uint8_t*, size_t);
     int read(void);
@@ -20,6 +20,7 @@ class SerialMux : public Stream, Control {
     size_t print(String&);
 
   private:
+    Control *_control = NULL;
     uint8_t _id = 0;
 };
 

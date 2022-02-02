@@ -1,8 +1,8 @@
 #include <serialMux.h>
 
 Control control(Serial);
-SerialMux muxA;
-SerialMux muxB;
+SerialMux muxA(control);
+SerialMux muxB(control);
 
 
 void setup(void) {

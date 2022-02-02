@@ -5,9 +5,9 @@
  *
  * \param serial Serial device.
  */
-SerialMux::SerialMux(void) {
-  _ids++;
-  _id = _ids;
+SerialMux::SerialMux(Control& control) {
+  _control = &control;
+  _id = _control->add();
 }
 
 /*!
@@ -16,18 +16,7 @@ SerialMux::SerialMux(void) {
  * \return Number of bytes.
  */
 int SerialMux::available(void) {
-  if (!_available && _serial->available()) {
-    _lock = _read();
-    _available = _read();
-    if (!_lock) {
-      _control();
-      return 0;
-    }
-  }
-  if (_lock == _id) {
-    return _available;
-  }
-  return 0;
+  return _control->available(_id);
 }
 
 /*!
@@ -39,20 +28,7 @@ int SerialMux::available(void) {
  * \return Number of bytes read.
  */
 size_t SerialMux::readBytes(uint8_t* data, size_t size) {
-  if (available()) {
-    size_t i;
-    for (i = 0; i < size; i++) {
-      data[i] = _read();
-
-      _available--;
-      if (!_available) {
-        _lock = 0;
-        return i + 1;
-      }
-    }
-    return size;
-  }
-  return 0;
+  return _control->read(_id, data, size);
 }
 
 /*!
@@ -61,11 +37,7 @@ size_t SerialMux::readBytes(uint8_t* data, size_t size) {
  * \return The first byte of incoming data or -1 if no data is available.
  */
 int SerialMux::read(void) {
-  uint8_t data;
-  if (readBytes(&data, 1)) {
-    return data;
-  }
-  return -1;
+  return _control->read(_id);
 }
 
 /*!
@@ -77,15 +49,7 @@ int SerialMux::read(void) {
  * \return Number of bytes written.
  */
 size_t SerialMux::write(uint8_t* data, size_t size) {
-  if (_enabled) {
-    _write(_id);
-    _write((uint8_t)size);
-
-    size_t i;
-    for (i = 0; i < size && _write(data[i]); i++);
-    return i;
-  }
-  return 0;
+  return _control->write(_id, data, size);
 }
 
 /*!
@@ -96,7 +60,7 @@ size_t SerialMux::write(uint8_t* data, size_t size) {
  * \return Number of bytes written.
  */
 size_t SerialMux::write(uint8_t data) {
-  return write(&data, 1);
+  return _control->write(_id, data);
 }
 
 /*!
@@ -106,10 +70,7 @@ size_t SerialMux::write(uint8_t data) {
  * \return The first byte of incoming data or -1 if no data is available.
  */
 int SerialMux::peek(void) {
-  if (available()) {
-    return _serial->peek();
-  }
-  return -1;
+  return _control->peek(_id);
 }
 
 /*!
