@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialMux.tcc"
+#include "vSerial.tcc"
 
-#define Control Control<>
 #define SerialMux SerialMux<>
+#define VSerial VSerial<>

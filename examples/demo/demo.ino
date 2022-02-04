@@ -1,8 +1,8 @@
 #include <serialMux.h>
 
-Control control(Serial);
-SerialMux muxA(control);
-SerialMux muxB(control);
+SerialMux mux(Serial);
+VSerial serialA(mux);
+VSerial serialB(mux);
 
 
 void setup(void) {
@@ -12,14 +12,14 @@ void setup(void) {
 void loop(void) {
   static uint16_t count = 0;
 
-  if (muxA.available()) {
-    muxA.print("received: ");
-    muxA.println(muxA.read());
+  if (serialA.available()) {
+    serialA.print("received: ");
+    serialA.println(serialA.read());
   }
 
   if (!count) {
-    muxB.print("time: ");
-    muxB.println(millis());
+    serialB.print("time: ");
+    serialB.println(millis());
   }
 
   count++;

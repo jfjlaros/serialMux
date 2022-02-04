@@ -3,11 +3,13 @@
 #include <Arduino.h>
 
 /*!
+ * Ring buffer.
  */
 template <uint8_t bits>
 class Buffer {
   public:
     Buffer(void);
+
     uint8_t available(void);
     uint8_t read(uint8_t*, uint8_t);
     int16_t read(void);
@@ -24,6 +26,7 @@ class Buffer {
 
 
 /*!
+ * Constructor.
  */
 template <uint8_t bits>
 Buffer<bits>::Buffer(void) {
@@ -31,7 +34,11 @@ Buffer<bits>::Buffer(void) {
   _end = 0;
 }
 
+
 /*!
+ * Get the number of bytes available for reading.
+ *
+ * \return Number of bytes.
  */
 template <uint8_t bits>
 uint8_t Buffer<bits>::available(void) {
@@ -39,6 +46,12 @@ uint8_t Buffer<bits>::available(void) {
 }
 
 /*!
+ * Read `size` bytes of data.
+ *
+ * \param data Buffer to receive `size` bytes of data.
+ * \param size Number of bytes to read.
+ *
+ * \return Number of bytes read.
  */
 template <uint8_t bits>
 uint8_t Buffer<bits>::read(uint8_t* data, uint8_t size) {
@@ -50,6 +63,9 @@ uint8_t Buffer<bits>::read(uint8_t* data, uint8_t size) {
 }
 
 /*!
+ * Read one byte of data.
+ *
+ * \return The first byte of incoming data or `-1` if no data is available.
  */
 template <uint8_t bits>
 int16_t Buffer<bits>::read(void) {
@@ -60,6 +76,12 @@ int16_t Buffer<bits>::read(void) {
 }
 
 /*!
+ * Write `size` bytes of data.
+ *
+ * \param data Buffer containing `size` bytes of data.
+ * \param size Number of bytes to write.
+ *
+ * \return Number of bytes written.
  */
 template <uint8_t bits>
 void Buffer<bits>::write(uint8_t* data, uint8_t size) {
@@ -69,6 +91,9 @@ void Buffer<bits>::write(uint8_t* data, uint8_t size) {
 }
 
 /*!
+ * Write one byte of data.
+ *
+ * \param data Data.
  */
 template <uint8_t bits>
 void Buffer<bits>::write(uint8_t data) {
@@ -76,6 +101,9 @@ void Buffer<bits>::write(uint8_t data) {
 }
 
 /*!
+ * Return the next byte of incoming data without removing it from the buffer.
+ *
+ * \return The first byte of incoming data or `-1` if no data is available.
  */
 template <uint8_t bits>
 int16_t Buffer<bits>::peek(void) {
