@@ -46,16 +46,17 @@ Create multiple virtual serial devices and use them like the standard
 
     #include <serialMux.h>
 
-    SerialMux muxA(Serial);
-    SerialMux muxB(Serial);
+    SerialMux mux(Serial);
+    VSerial serialA(mux);
+    VSerial serialB(mux);
 
     void setup(void) {
       Serial.begin(9600);
     }
 
     void loop(void) {
-      muxA.println("This is a message from virtual device 1.");
-      muxB.println("This is a message from virtual device 2.");
+      serialA.println("This is a message from virtual device 1.");
+      serialB.println("This is a message from virtual device 2.");
       delay(1000);
     }
 

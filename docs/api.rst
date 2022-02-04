@@ -1,13 +1,11 @@
 API documentation
 =================
 
-.. code-block:: cpp
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   :glob:
 
-    #include <serialMux.h>
-
-
-Class definition
-----------------
-
-.. doxygenclass:: SerialMux
-   :members:
+   api/buffer
+   api/serialmux
+   api/vserial
