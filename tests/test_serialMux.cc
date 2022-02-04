@@ -1,214 +1,148 @@
 #include <catch.hpp>
 
-#include "../src/serialMux.h"
+#include "../src/serialMux.tcc"
 
 extern Stream Serial;
-SerialMux muxA(Serial);
-SerialMux muxB(Serial);
+SerialMux<6> mux(Serial);
 
 
-void _checkEmpty(SerialMux& mux) {
-  REQUIRE(Serial.available() == 0);
-  REQUIRE(mux.available() == 0);
+void _checkTx(SerialMux<6>& mux, char const* data, uint8_t size) {
+  mux.available(1);
+  for (uint8_t i = 0; i < size; i++) {
+    REQUIRE(Serial.inspect<uint8_t>() == data[i]);
+  }
+  Serial.reset();
 }
 
 
-void _checkTx(void) {}
-
-template <class T, class... Args>
-void _checkTx(T data, Args... args) {
-  REQUIRE(Serial.inspect<T>() == data);
-  _checkTx(args...);
+TEST_CASE("Add ports", "[mux][add]") {
+  REQUIRE(mux.add() == 1);
+  REQUIRE(mux.add() == 2);
 }
 
-
-TEST_CASE("Get ports", "[control]") {
-  Serial.prepare('\x00', '\x01', CMD_GET_PORTS);
-  REQUIRE(Serial.available() == 3);
-
-  // Trigger control command.
-  muxA.available();
-
-  _checkEmpty(muxA);
-  _checkEmpty(muxB);
-  _checkTx('\x00', '\x01', '\x02');
+TEST_CASE("No data available on ports", "[mux][empty]") {
+  REQUIRE(mux.available(1) == 0);
+  REQUIRE(mux.available(2) == 0);
 }
 
-TEST_CASE("Enable", "[control][read][write][peek][port1][port2]") {
-  Serial.prepare('\x00', '\x01', CMD_ENABLE);
-  REQUIRE(Serial.available() == 3);
-
-  // Trigger control command.
-  muxA.available();
-
-  _checkEmpty(muxA);
-  _checkEmpty(muxB);
-  _checkTx('\x00', '\x01', '\x00');
+TEST_CASE("Peek byte from ports, nothing available", "[mux][empty]") {
+  REQUIRE(mux.peek(1) == -1);
+  REQUIRE(mux.peek(2) == -1);
 }
 
-
-TEST_CASE("One byte available, port 1", "[read][peek][port1]") {
-  // Send one byte to port 1.
-  Serial.prepare('\x01', '\x01', '\x02');
-  
-  REQUIRE(Serial.available() == 3);
-  REQUIRE(muxA.available() == 1);
-  REQUIRE(Serial.available() == 1);
-  REQUIRE(muxB.available() == 0);
+TEST_CASE("Read byte from ports, nothing available", "[mux][empty]") {
+  REQUIRE(mux.read(1) == -1);
+  REQUIRE(mux.read(2) == -1);
 }
 
-TEST_CASE("Peek byte, port 1", "[peek][port1]") {
-  REQUIRE(muxA.peek() == '\x02');
-  REQUIRE(muxB.peek() == -1);
+TEST_CASE("Write byte to ports, mux disabled", "[mux][empty]") {
+  REQUIRE(mux.write(1, '\x00') == 0);
+  REQUIRE(mux.write(2, '\x00') == 0);
 }
 
-TEST_CASE("Read byte, port 1", "[read][peek][port1]") {
-  REQUIRE(muxA.read() == '\x02');
-  REQUIRE(muxB.read() == -1);
-  _checkEmpty(muxA);
-  _checkEmpty(muxB);
+TEST_CASE("Query protocol", "[mux][protocol]") {
+  Serial.prepare('\x00', '\x01', '\x00');
+  _checkTx(mux, "\x00\x0cserialMux", 11);
 }
 
+TEST_CASE("Get ports", "[mux][protocol]") {
+  Serial.prepare('\x00', '\x01', '\x01');
+  _checkTx(mux, "\x00\x01\x02", 3);
+}
 
-TEST_CASE("One byte available, port 2", "[read][peek][port2]") {
-  // Send one byte to port 2.
+TEST_CASE("Enable mux", "[mux][protocol]") {
+  Serial.prepare('\x00', '\x01', '\x02');
+  _checkTx(mux, "\x00\x01\x00", 3);
+}
+
+TEST_CASE("Write byte to ports", "[mux][single]") {
+  REQUIRE(mux.write(1, '\x01') == 1);
+  _checkTx(mux, "\x01\x01\x01", 3);
+  REQUIRE(mux.write(2, '\x02') == 1);
+  _checkTx(mux, "\x02\x01\x02", 3);
+}
+
+TEST_CASE("Send byte to ports, one byte available", "[mux][single]") {
+  Serial.prepare('\x01', '\x01', '\x01');
+  REQUIRE(mux.available(1) == 1);
   Serial.prepare('\x02', '\x01', '\x02');
-  REQUIRE(Serial.available() == 3);
-  REQUIRE(muxB.available() == 1);
-  REQUIRE(Serial.available() == 1);
-  REQUIRE(muxA.available() == 0);
+  REQUIRE(mux.available(2) == 1);
 }
 
-TEST_CASE("Peek byte, port 2", "[peek][port2]") {
-  REQUIRE(muxB.peek() == '\x02');
-  REQUIRE(muxA.peek() == -1);
+TEST_CASE("Send byte to ports, two bytes available", "[mux][single]") {
+  Serial.prepare('\x01', '\x01', '\x03');
+  REQUIRE(mux.available(1) == 2);
+  Serial.prepare('\x02', '\x01', '\x04');
+  REQUIRE(mux.available(2) == 2);
 }
 
-TEST_CASE("Read byte, port 2", "[read][peek][port2]") {
-  REQUIRE(muxB.read() == '\x02');
-  REQUIRE(muxA.read() == -1);
-  _checkEmpty(muxB);
-  _checkEmpty(muxA);
+TEST_CASE("Peek byte from ports, two bytes remaining", "[mux][single]") {
+  REQUIRE(mux.peek(1) == '\x01');
+  REQUIRE(mux.available(1) == 2);
+  REQUIRE(mux.peek(2) == '\x02');
+  REQUIRE(mux.available(2) == 2);
 }
 
-
-TEST_CASE("One byte available, port 1, wrong order", "[read][peek][port1]") {
-  // Send one byte to port 1.
-  Serial.prepare('\x01', '\x01', '\x02');
-  
-  REQUIRE(Serial.available() == 3);
-  REQUIRE(muxB.available() == 0);
-  REQUIRE(Serial.available() == 1);
-  REQUIRE(muxA.available() == 1);
-  REQUIRE(Serial.available() == 1);
-  REQUIRE(muxB.available() == 0);
+TEST_CASE("Read byte from ports, one byte remaining", "[mux][single]") {
+  REQUIRE(mux.read(1) == '\x01');
+  REQUIRE(mux.available(1) == 1);
+  REQUIRE(mux.read(2) == '\x02');
+  REQUIRE(mux.available(2) == 1);
 }
 
-TEST_CASE("Peek byte, port 1, wrong order", "[peek][port1]") {
-  REQUIRE(muxB.peek() == -1);
-  REQUIRE(muxA.peek() == '\x02');
+TEST_CASE("Peek byte from ports, one byte remaining", "[mux][single]") {
+  REQUIRE(mux.peek(1) == '\x03');
+  REQUIRE(mux.available(1) == 1);
+  REQUIRE(mux.peek(2) == '\x04');
+  REQUIRE(mux.available(2) == 1);
 }
 
-TEST_CASE("Read byte, port 1, wrong order", "[read][peek][port1]") {
-  REQUIRE(muxB.read() == -1);
-  REQUIRE(muxA.read() == '\x02');
-  _checkEmpty(muxB);
-  _checkEmpty(muxA);
+TEST_CASE("Read byte from ports, zero bytes remaining", "[mux][single]") {
+  REQUIRE(mux.read(1) == '\x03');
+  REQUIRE(mux.available(1) == 0);
+  REQUIRE(mux.read(2) == '\x04');
+  REQUIRE(mux.available(2) == 0);
 }
 
-
-TEST_CASE("Multiple bytes available, port 1", "[read][port1]") {
-  // Send three bytes to port 1.
-  Serial.prepare('\x01', '\x03', '\x00', '\x01', '\x02');
-  REQUIRE(Serial.available() == 5);
-  REQUIRE(muxA.available() == 3);
-  REQUIRE(Serial.available() == 3);
-  REQUIRE(muxB.available() == 0);
+TEST_CASE("Write multiple bytes to ports", "[mux][multiple]") {
+  uint8_t* data = (uint8_t*)"\x01\x02\x03";
+  REQUIRE(mux.write(1, data, 3) == 3);
+  _checkTx(mux, "\x01\x03\x01\x02\x03", 5);
+  data = (uint8_t*)"\x04\x05\x06";
+  REQUIRE(mux.write(2, data, 3) == 3);
+  _checkTx(mux, "\x02\x03\x04\x05\x06", 5);
 }
 
-TEST_CASE("Read multiple bytes, port 1", "[read][port1]") {
-  uint8_t buffer[4] = {'\x00', '\x00', '\x00', '\x00'};
-  muxA.readBytes(buffer, 3);
-  REQUIRE(!strcmp((char const*)buffer, "\x00\x01\x02"));
-  _checkEmpty(muxA);
-  _checkEmpty(muxB);
+TEST_CASE(
+    "Read multiple bytes from ports, nothing available", "[mux][multiple]") {
+  uint8_t* data;
+  REQUIRE(mux.read(1, data, 3) == 0);
+  REQUIRE(mux.read(2, data, 3) == 0);
 }
 
-
-TEST_CASE("Multiple bytes available, port 2", "[read][port2]") {
-  // Send three bytes to port 2.
-  Serial.prepare('\x02', '\x03', '\x00', '\x01', '\x02');
-  REQUIRE(Serial.available() == 5);
-  REQUIRE(muxB.available() == 3);
-  REQUIRE(Serial.available() == 3);
-  REQUIRE(muxA.available() == 0);
+TEST_CASE("Send multiple bytes to ports", "[mux][multiple]") {
+  Serial.prepare('\x01', '\x03', 'a', 'b', 'c');
+  REQUIRE(mux.available(1) == 3);
+  Serial.prepare('\x02', '\x03', 'd', 'e', 'f');
+  REQUIRE(mux.available(2) == 3);
 }
 
-TEST_CASE("Read multiple bytes, port 2", "[read][port2]") {
-  uint8_t buffer[4] = {'\x00', '\x00', '\x00', '\x00'};
-  muxB.readBytes(buffer, 3);
-  REQUIRE(!strcmp((char const*)buffer, "\x00\x01\x02"));
-  _checkEmpty(muxB);
-  _checkEmpty(muxA);
+TEST_CASE("Read multiple bytes from ports", "[mux][multiple]") {
+  uint8_t data[4] = {};
+  REQUIRE(mux.read(1, data, 3) == 3);
+  REQUIRE(!strcmp((char const*)data, "abc"));
+  REQUIRE(mux.available(1) == 0);
+  REQUIRE(mux.read(2, data, 3) == 3);
+  REQUIRE(!strcmp((char const*)data, "def"));
+  REQUIRE(mux.available(2) == 0);
 }
 
-
-TEST_CASE("Peek byte immediately, port 1", "[peek][port1]") {
-  Serial.prepare('\x01', '\x01', '\x02');
-  REQUIRE(muxA.peek() == '\x02');
-  REQUIRE(muxB.peek() == -1);
-  REQUIRE(muxA.read() == '\x02');
-  REQUIRE(muxB.read() == -1);
-}
-
-TEST_CASE("Read byte immediately, port 1", "[read][port1]") {
-  Serial.prepare('\x01', '\x01', '\x02');
-  REQUIRE(muxA.read() == '\x02');
-  REQUIRE(muxB.read() == -1);
-}
-
-TEST_CASE("Peek byte immediately, port 2", "[peek][port2]") {
-  Serial.prepare('\x02', '\x01', '\x02');
-  REQUIRE(muxB.peek() == '\x02');
-  REQUIRE(muxA.peek() == -1);
-  REQUIRE(muxB.read() == '\x02');
-  REQUIRE(muxA.read() == -1);
-}
-
-TEST_CASE("Read byte immediately, port 2", "[read][port2]") {
-  Serial.prepare('\x02', '\x01', '\x02');
-  REQUIRE(muxB.read() == '\x02');
-  REQUIRE(muxA.read() == -1);
-}
-
-TEST_CASE("Write byte, port 1", "[write][port1]") {
-  muxA.write('\x02');
-  _checkTx('\x01', '\x01', '\x02');
-}
-
-TEST_CASE("Write multiple bytes, port 1", "[write][port1]") {
-  muxA.write((uint8_t*)"\x00\x01\x02", 3);
-  _checkTx('\x01', '\x03', '\x00', '\x01', '\x02');
-}
-
-TEST_CASE("Write byte, port 2", "[write][port2]") {
-  muxB.write('\x02');
-  _checkTx('\x02', '\x01', '\x02');
-}
-
-TEST_CASE("Write multiple bytes, port 2", "[write][port2]") {
-  muxB.write((uint8_t*)"\x00\x01\x02", 3);
-  _checkTx('\x02', '\x03', '\x00', '\x01', '\x02');
-}
-
-
-TEST_CASE("Print C string", "[print]") {
-  muxA.print("abc");
-  _checkTx('\x01', '\x03', 'a', 'b', 'c');
-}
-
-TEST_CASE("Print string", "[print]") {
-  String s("abc");
-  muxA.print(s);
-  _checkTx('\x01', '\x03', 'a', 'b', 'c');
+TEST_CASE("Read too many bytes from ports", "[mux][multiple]") {
+  uint8_t data[4] = {};
+  Serial.prepare('\x01', '\x03', 'a', 'b', 'c');
+  REQUIRE(mux.read(1, data, 4) == 3);
+  REQUIRE(mux.available(1) == 0);
+  Serial.prepare('\x02', '\x03', 'd', 'e', 'f');
+  REQUIRE(mux.read(2, data, 4) == 3);
+  REQUIRE(mux.available(2) == 0);
 }

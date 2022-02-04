@@ -71,7 +71,7 @@ template <uint8_t bits>
 uint8_t SerialMux<bits>::add(void) {
   _buffer = (Buffer<bits>*)realloc(
     (void*)_buffer, ++_id * sizeof(Buffer<bits>));
-  _buffer[_id] = Buffer<bits>();
+  _buffer[_id - 1] = Buffer<bits>();
   return _id;
 }
 
@@ -86,7 +86,7 @@ uint8_t SerialMux<bits>::add(void) {
 template <uint8_t bits>
 size_t SerialMux<bits>::available(uint8_t id) {
   _update();
-  return _buffer[id].available();
+  return _buffer[id - 1].available();
 }
 
 /*!
@@ -101,7 +101,7 @@ size_t SerialMux<bits>::available(uint8_t id) {
 template <uint8_t bits>
 size_t SerialMux<bits>::read(uint8_t id, uint8_t* data, uint8_t size) {
   _update();
-  return _buffer[id].read(data, size);
+  return _buffer[id - 1].read(data, size);
 }
 
 /*!
@@ -114,7 +114,7 @@ size_t SerialMux<bits>::read(uint8_t id, uint8_t* data, uint8_t size) {
 template <uint8_t bits>
 int SerialMux<bits>::read(uint8_t id) {
   _update();
-  return _buffer[id].read();
+  return _buffer[id - 1].read();
 }
 
 /*!
@@ -156,7 +156,7 @@ size_t SerialMux<bits>::write(uint8_t id, uint8_t data) {
 template <uint8_t bits>
 int SerialMux<bits>::peek(uint8_t id) {
   _update();
-  return _buffer[id].peek();
+  return _buffer[id - 1].peek();
 }
 
 
@@ -197,7 +197,7 @@ void SerialMux<bits>::_update(void) {
       return;
     }
     for (uint8_t i = 0; i < size; i++) {
-      _buffer[id].write(_read());
+      _buffer[id - 1].write(_read());
     }
   }
 }
@@ -230,5 +230,5 @@ size_t SerialMux<bits>::_write(uint8_t id, uint8_t* data, uint8_t size) {
     _serial->write(size);
     return _serial->write(data, size);
   }
-  return -1;
+  return 0;
 }

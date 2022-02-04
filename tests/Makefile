@@ -1,7 +1,7 @@
 EXEC := run_tests
 MAIN := test_lib
-SRC := ../src/serialMux
-TESTS := test_serialMux
+SRC :=
+TESTS := test_buffer test_serialMux test_vSerial
 FIXTURES := arduino-serial-fixture/src/Arduino
 
 
