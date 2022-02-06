@@ -37,8 +37,8 @@ device.
 .. code-block:: cpp
 
     void loop(void) {
-      serialA.println("Virtual serial port 1.");
-      serialB.println("Virtual serial port 2.");
+      serialA.println("Virtual serial device A.");
+      serialB.println("Virtual serial device B.");
       delay(1000);
     }
 
@@ -55,7 +55,8 @@ included.
 
     HardwareSerial& masterSerial = Serial;
     SerialMux mux(masterSerial);
-    #define Serial mux
+    VSerial serialA(mux)
+    #define Serial serialA
 
     #include <hardcodedSerialUsingLib.h>
 

@@ -34,31 +34,31 @@ TEST_CASE(
 }
 
 TEST_CASE("Enable virtual devices", "[serial][protocol]") {
-  Serial.prepare('\x00', '\x01', '\x02');
-  _checkTx(_mux, "\x00\x01\x00", 3);
+  Serial.prepare('\xff', '\x01', '\x03');
+  _checkTx(_mux, "\xff\x01\x00", 3);
 }
 
 TEST_CASE("Write byte to virtual devices", "[serial][single]") {
   REQUIRE(serialA.write('\x01') == 1);
-  _checkTx(_mux, "\x01\x01\x01", 3);
+  _checkTx(_mux, "\x00\x01\x01", 3);
   REQUIRE(serialB.write('\x02') == 1);
-  _checkTx(_mux, "\x02\x01\x02", 3);
+  _checkTx(_mux, "\x01\x01\x02", 3);
 }
 
 TEST_CASE(
     "Send byte to virtual devices, one byte available", "[serial][single]") {
-  Serial.prepare('\x01', '\x01', '\x01');
+  Serial.prepare('\x00', '\x01', '\x01');
   REQUIRE(serialA.available() == 1);
-  Serial.prepare('\x02', '\x01', '\x02');
+  Serial.prepare('\x01', '\x01', '\x02');
   REQUIRE(serialB.available() == 1);
 }
 
 TEST_CASE(
     "Send byte to virtual devices, two bytes available",
     "[serial][single]") {
-  Serial.prepare('\x01', '\x01', '\x03');
+  Serial.prepare('\x00', '\x01', '\x03');
   REQUIRE(serialA.available() == 2);
-  Serial.prepare('\x02', '\x01', '\x04');
+  Serial.prepare('\x01', '\x01', '\x04');
   REQUIRE(serialB.available() == 2);
 }
 
@@ -101,10 +101,10 @@ TEST_CASE(
 TEST_CASE("Write multiple bytes to virtual devices", "[serial][multiple]") {
   uint8_t* data = (uint8_t*)"\x01\x02\x03";
   REQUIRE(serialA.write(data, 3) == 3);
-  _checkTx(_mux, "\x01\x03\x01\x02\x03", 5);
+  _checkTx(_mux, "\x00\x03\x01\x02\x03", 5);
   data = (uint8_t*)"\x04\x05\x06";
   REQUIRE(serialB.write(data, 3) == 3);
-  _checkTx(_mux, "\x02\x03\x04\x05\x06", 5);
+  _checkTx(_mux, "\x01\x03\x04\x05\x06", 5);
 }
 
 TEST_CASE(
@@ -116,9 +116,9 @@ TEST_CASE(
 }
 
 TEST_CASE("Send multiple bytes to virtual devices", "[serial][multiple]") {
-  Serial.prepare('\x01', '\x03', 'a', 'b', 'c');
+  Serial.prepare('\x00', '\x03', 'a', 'b', 'c');
   REQUIRE(serialA.available() == 3);
-  Serial.prepare('\x02', '\x03', 'd', 'e', 'f');
+  Serial.prepare('\x01', '\x03', 'd', 'e', 'f');
   REQUIRE(serialB.available() == 3);
 }
 
@@ -134,26 +134,26 @@ TEST_CASE("Read multiple bytes from virtual devices", "[serial][multiple]") {
 
 TEST_CASE("Read too many bytes from virtual devices", "[serial][multiple]") {
   uint8_t data[4] = {};
-  Serial.prepare('\x01', '\x03', 'a', 'b', 'c');
+  Serial.prepare('\x00', '\x03', 'a', 'b', 'c');
   REQUIRE(serialA.readBytes(data, 4) == 3);
   REQUIRE(serialA.available() == 0);
-  Serial.prepare('\x02', '\x03', 'd', 'e', 'f');
+  Serial.prepare('\x01', '\x03', 'd', 'e', 'f');
   REQUIRE(serialB.readBytes(data, 4) == 3);
   REQUIRE(serialB.available() == 0);
 }
 
 TEST_CASE("Print C string", "[print]") {
   serialA.print("\x01\x02\x03");
-  _checkTx(_mux, "\x01\x03\x01\x02\x03", 5);
+  _checkTx(_mux, "\x00\x03\x01\x02\x03", 5);
   serialB.print("\x04\x05\x06");
-  _checkTx(_mux, "\x02\x03\x04\x05\x06", 5);
+  _checkTx(_mux, "\x01\x03\x04\x05\x06", 5);
 }
 
 TEST_CASE("Print string", "[print]") {
   String s("\x01\x02\x03");
   serialA.print(s);
-  _checkTx(_mux, "\x01\x03\x01\x02\x03", 5);
+  _checkTx(_mux, "\x00\x03\x01\x02\x03", 5);
   s = "\x04\x05\x06";
   serialB.print(s);
-  _checkTx(_mux, "\x02\x03\x04\x05\x06", 5);
+  _checkTx(_mux, "\x01\x03\x04\x05\x06", 5);
 }

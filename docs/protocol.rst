@@ -27,8 +27,8 @@ by a virtual port number and the length of the message.
      - size
      - data
 
-The first virtual device has port number ``1``, the second ``2``, etc.
-Virtual port number ``0`` is reserved for control messages. The maximum
+The first virtual device has port number ``0``, the second ``1``, etc.
+Virtual port number ``255`` is reserved for control messages. The maximum
 number of virtual devices is 254 and the length of the message is limited to
 255 bytes.
 
@@ -48,31 +48,36 @@ up.
      - response
      - description
    * - 0
-     - ``serialMux\x01\x00\x00``
-     - Protocol identifier and version (major, minor, patch).
+     - ``serialMux``
+     - Protocol identifier.
    * - 1
+     - ``\x01\x00\x00`` (example)
+     - Version (major, minor, patch).
+   * - 2
      - Number of virtual ports.
      - Get the number of virtual ports.
-   * - 2
-     - ``0x00``
-     - Enable multiplexer.
    * - 3
      - ``0x00``
-     - Disable multiplexer.
+     - Enable multiplexer.
    * - 4
+     - ``0x00``
+     - Disable multiplexer.
+   * - 5
      - ``0x00``
      - Reset.
 
 A typical initialisation procedure looks as follows.
 
-1. The host asks for the protocol identifier and version (``0x00, 0x01,
-   0x00``).
-2. The device responds with the protocol identifier and version.
-3. The host requests the number of virtual ports (``0x00, 0x01, 0x01``).
-4. The device sends the number of virtual ports (e.g., ``0x00, 0x01, 0x02``).
-5. The host sets up pseudo terminals that connect to the virtual ports.
-6. The host send the enable command (``0x00, 0x01, 0x02``).
+1. The host asks for the protocol identifier (``0xff, 0x01, 0x00``).
+2. The device responds with the protocol identifier.
+3. The host asks for the protocol version (``0xff, 0x01, 0x01``).
+4. The device responds with the protocol version.
+5. The host requests the number of virtual ports (``0xff, 0x01, 0x02``).
+6. The device sends the number of virtual ports (e.g., ``0xff, 0x01, 0x02``).
+7. The host sets up pseudo terminals that connect to the virtual ports.
+8. The host send the enable command (``0xff, 0x01, 0x03``).
+9. The device responds with an acknowledgement (``0xff, 0x01, 0x00``).
 
 After initialisation the first pseudo terminal can be used to communicate
-with the virtual device on port ``1``, the second pseudo terminal can be used
-to communicate with the virtual device on port ``2``, etc.
+with the virtual device on port ``0``, the second pseudo terminal can be used
+to communicate with the virtual device on port ``1``, etc.

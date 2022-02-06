@@ -55,8 +55,8 @@ Create multiple virtual serial devices and use them like the standard
     }
 
     void loop(void) {
-      serialA.println("This is a message from virtual device 1.");
-      serialB.println("This is a message from virtual device 2.");
+      serialA.println("Virtual serial device A.");
+      serialB.println("Virtual serial device B.");
       delay(1000);
     }
 
@@ -67,8 +67,8 @@ messages that are sent to that port.
 ::
 
     $ picocom -q /dev/pts/8
-    This is a message from virtual device 1.
-    This is a message from virtual device 1.
+    Virtual device A.
+    Virtual device A.
 
 
 .. _ReadTheDocs: https://serialmux.readthedocs.io
