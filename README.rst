@@ -11,9 +11,8 @@ Serial multiplexer for Arduino
    :target: https://github.com/jfjlaros/serialMux/releases
 .. image:: https://img.shields.io/github/release/jfjlaros/serialMux.svg
    :target: https://github.com/jfjlaros/serialMux/releases
-..
-    .. image:: https://www.ardu-badge.com/badge/serialMux.svg
-       :target: https://www.ardu-badge.com/serialMux
+.. image:: https://www.ardu-badge.com/badge/serialMux.svg
+   :target: https://www.ardu-badge.com/serialMux
 .. image:: https://img.shields.io/github/languages/code-size/jfjlaros/serialMux.svg
    :target: https://github.com/jfjlaros/serialMux
 .. image:: https://img.shields.io/github/languages/count/jfjlaros/serialMux.svg

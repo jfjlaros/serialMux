@@ -1,23 +1,22 @@
 Installation
 ============
 
-..
-    Arduino IDE
-    -----------
-    
-    To install this library in the `Arduino IDE`_, please follow these
-    comprehensive `installation instructions`_.
-    
-    
-    Arduino CLI
-    -----------
-    
-    The latest version can be installed with the `Arduino CLI`_ interface using
-    the following command.
-    
-    ::
-    
-        arduino-cli lib install serialMux
+Arduino IDE
+-----------
+
+To install this library in the `Arduino IDE`_, please follow these
+comprehensive `installation instructions`_.
+
+
+Arduino CLI
+-----------
+
+The latest version can be installed with the `Arduino CLI`_ interface using
+the following command.
+
+::
+
+    arduino-cli lib install serialMux
 
 
 Manual installation
