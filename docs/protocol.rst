@@ -9,7 +9,7 @@ Packets
 
 Communication over a shared serial connection is accomplished by using
 packets. The packet structure is straightforward, every message is prefixed
-by a virtual port number and the length of the message.
+by a virtual serial port number and the length of the message.
 
 .. list-table:: Packet structure.
    :header-rows: 1
@@ -19,7 +19,7 @@ by a virtual port number and the length of the message.
      - description
    * - 0
      - 1
-     - virtual port
+     - virtual serial port
    * - 1
      - 1
      - size
@@ -27,10 +27,9 @@ by a virtual port number and the length of the message.
      - size
      - data
 
-The first virtual device has port number ``0``, the second ``1``, etc.
-Virtual port number ``255`` is reserved for control messages. The maximum
-number of virtual devices is 254 and the length of the message is limited to
-255 bytes.
+The first virtual device has port number ``0``, the second ``1``, etc. Port
+number ``255`` is reserved for control messages. The maximum number of virtual
+devices is 254 and the length of the message is limited to 255 bytes.
 
 
 Control messages
@@ -54,8 +53,8 @@ up.
      - ``\x01\x00\x00`` (example)
      - Version (major, minor, patch).
    * - 2
-     - Number of virtual ports.
-     - Get the number of virtual ports.
+     - Number of virtual serial ports.
+     - Get the number of virtual serial ports.
    * - 3
      - ``0x00``
      - Enable multiplexer.
@@ -72,9 +71,10 @@ A typical initialisation procedure looks as follows.
 2. The device responds with the protocol identifier.
 3. The host asks for the protocol version (``0xff, 0x01, 0x01``).
 4. The device responds with the protocol version.
-5. The host requests the number of virtual ports (``0xff, 0x01, 0x02``).
-6. The device sends the number of virtual ports (e.g., ``0xff, 0x01, 0x02``).
-7. The host sets up pseudo terminals that connect to the virtual ports.
+5. The host requests the number of virtual serial ports (``0xff, 0x01, 0x02``).
+6. The device sends the number of virtual serial ports (e.g., ``0xff, 0x01,
+   0x02``).
+7. The host sets up pseudo terminals that connect to the virtual serial ports.
 8. The host send the enable command (``0xff, 0x01, 0x03``).
 9. The device responds with an acknowledgement (``0xff, 0x01, 0x00``).
 

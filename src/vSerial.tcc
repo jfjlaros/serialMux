@@ -23,7 +23,7 @@ class VSerial : public Stream {
 
   private:
     SerialMux<bits>* _mux = NULL;
-    uint8_t _id = 0;
+    uint8_t _port = 0;
 };
 
 
@@ -35,7 +35,7 @@ class VSerial : public Stream {
 template <uint8_t bits>
 VSerial<bits>::VSerial(SerialMux<bits>& mux) {
   _mux = &mux;
-  _id = _mux->add();
+  _port = _mux->add();
 }
 
 
@@ -46,7 +46,7 @@ VSerial<bits>::VSerial(SerialMux<bits>& mux) {
  */
 template <uint8_t bits>
 int VSerial<bits>::available(void) {
-  return _mux->available(_id);
+  return _mux->available(_port);
 }
 
 /*!
@@ -56,7 +56,7 @@ int VSerial<bits>::available(void) {
  */
 template <uint8_t bits>
 int VSerial<bits>::read(void) {
-  return _mux->read(_id);
+  return _mux->read(_port);
 }
 
 /*!
@@ -69,7 +69,7 @@ int VSerial<bits>::read(void) {
  */
 template <uint8_t bits>
 size_t VSerial<bits>::readBytes(uint8_t* data, size_t size) {
-  return _mux->read(_id, data, size);
+  return _mux->read(_port, data, size);
 }
 
 /*!
@@ -82,7 +82,7 @@ size_t VSerial<bits>::readBytes(uint8_t* data, size_t size) {
  */
 template <uint8_t bits>
 size_t VSerial<bits>::write(uint8_t* data, size_t size) {
-  return _mux->write(_id, data, size);
+  return _mux->write(_port, data, size);
 }
 
 /*!
@@ -94,7 +94,7 @@ size_t VSerial<bits>::write(uint8_t* data, size_t size) {
  */
 template <uint8_t bits>
 size_t VSerial<bits>::write(uint8_t data) {
-  return _mux->write(_id, data);
+  return _mux->write(_port, data);
 }
 
 /*!
@@ -107,7 +107,7 @@ size_t VSerial<bits>::write(uint8_t data) {
 template <uint8_t bits>
 template <class T>
 size_t VSerial<bits>::write(T data) {
-  return _mux->write(_id, (uint8_t*)&data, sizeof(T));
+  return _mux->write(_port, (uint8_t*)&data, sizeof(T));
 }
 
 /*!
@@ -117,7 +117,7 @@ size_t VSerial<bits>::write(T data) {
  */
 template <uint8_t bits>
 int VSerial<bits>::peek(void) {
-  return _mux->peek(_id);
+  return _mux->peek(_port);
 }
 
 /*!
@@ -129,7 +129,7 @@ int VSerial<bits>::peek(void) {
  */
 template <uint8_t bits>
 size_t VSerial<bits>::print(char const data[]) {
-  return _mux->write(_id, (uint8_t*)data, strlen(data));
+  return _mux->write(_port, (uint8_t*)data, strlen(data));
 }
 
 /*!
@@ -141,5 +141,5 @@ size_t VSerial<bits>::print(char const data[]) {
  */
 template <uint8_t bits>
 size_t VSerial<bits>::print(String& data) {
-  return _mux->write(_id, (uint8_t*)data.c_str(), data.length());
+  return _mux->write(_port, (uint8_t*)data.c_str(), data.length());
 }
