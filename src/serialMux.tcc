@@ -3,16 +3,17 @@
 #include "buffer.tcc"
 
 #define _PROTOCOL "serialMux"
-#define _VERSION "\x01\x00\x00"
-#define _CONTROL_PORT 0xff
+#define _VERSION "\x02\x00\x00"
+#define _ESCAPE 0xff
+#define _CONTROL_PORT 0xfe
 
 // Control commands.
-#define CMD_PROTOCOL  '\x00'
-#define CMD_VERSION   '\x01'
+#define CMD_PROTOCOL '\x00'
+#define CMD_VERSION '\x01'
 #define CMD_GET_PORTS '\x02'
-#define CMD_ENABLE    '\x03'
-#define CMD_DISABLE   '\x04'
-#define CMD_RESET     '\x05'
+#define CMD_ENABLE '\x03'
+#define CMD_DISABLE '\x04'
+#define CMD_RESET '\x05'
 
 /*!
  * Serial multiplexer.
@@ -26,23 +27,23 @@ class SerialMux {
     uint8_t add(void);
 
     size_t available(uint8_t);
-    size_t read(uint8_t, uint8_t*, uint8_t);
     int read(uint8_t);
-    size_t write(uint8_t, uint8_t*, uint8_t);
-    size_t write(uint8_t, uint8_t);
+    void write(uint8_t, uint8_t);
     int peek(uint8_t);
 
   private:
     Buffer<bits>* _buffer = NULL;
     bool _enabled = false;
+    uint8_t _portRx = _CONTROL_PORT;
+    uint8_t _portTx = _CONTROL_PORT;
     uint8_t _ports = 0;
     Stream* _serial = NULL;
 
-    void _control(void);
+    void _control(uint8_t);
     void _update(void);
 
     uint8_t _read(void);
-    size_t _write(uint8_t, uint8_t*, uint8_t);
+    void _write(uint8_t, uint8_t*, uint8_t);
 };
 
 
@@ -93,21 +94,6 @@ size_t SerialMux<bits>::available(uint8_t port) {
 }
 
 /*!
- * Read `size` bytes of data.
- *
- * \param port Virtual serial port.
- * \param data Buffer to receive `size` bytes of data.
- * \param size Number of bytes to read.
- *
- * \return Number of bytes read.
- */
-template <uint8_t bits>
-size_t SerialMux<bits>::read(uint8_t port, uint8_t* data, uint8_t size) {
-  _update();
-  return _buffer[port].read(data, size);
-}
-
-/*!
  * Read one byte of data.
  *
  * \param port Virtual serial port.
@@ -121,21 +107,6 @@ int SerialMux<bits>::read(uint8_t port) {
 }
 
 /*!
- * Write `size` bytes of data.
- *
- * \param port Virtual serial port.
- * \param data Buffer containing `size` bytes of data.
- * \param size Number of bytes to write.
- *
- * \return Number of bytes written.
- */
-template <uint8_t bits>
-size_t SerialMux<bits>::write(uint8_t port, uint8_t* data, uint8_t size) {
-  _update();
-  return _write(port, data, size);
-}
-
-/*!
  * Write one byte of data.
  *
  * \param port Virtual serial port.
@@ -144,9 +115,9 @@ size_t SerialMux<bits>::write(uint8_t port, uint8_t* data, uint8_t size) {
  * \return Number of bytes written.
  */
 template <uint8_t bits>
-size_t SerialMux<bits>::write(uint8_t port, uint8_t data) {
+void SerialMux<bits>::write(uint8_t port, uint8_t data) {
   _update();
-  return _write(port, &data, 1);
+  _write(port, &data, 1);
 }
 
 /*!
@@ -167,16 +138,16 @@ int SerialMux<bits>::peek(uint8_t port) {
  * Control command handling.
  */
 template <uint8_t bits>
-void SerialMux<bits>::_control(void) {
-  switch (_read()) {
+void SerialMux<bits>::_control(uint8_t data) {
+  switch (data) {
     case CMD_PROTOCOL:
-      write(_CONTROL_PORT, (uint8_t*)_PROTOCOL, sizeof(_PROTOCOL) - 1);
+      _write(_CONTROL_PORT, (uint8_t*)_PROTOCOL, sizeof(_PROTOCOL) - 1);
       return;
     case CMD_VERSION:
-      write(_CONTROL_PORT, (uint8_t*)_VERSION, sizeof(_VERSION) - 1);
+      _write(_CONTROL_PORT, (uint8_t*)_VERSION, sizeof(_VERSION) - 1);
       return;
     case CMD_GET_PORTS:
-      write(_CONTROL_PORT, _ports);
+      _write(_CONTROL_PORT, &_ports, 1);
       return;
     case CMD_ENABLE:
       _enabled = true;
@@ -187,7 +158,7 @@ void SerialMux<bits>::_control(void) {
     case CMD_RESET:
       break;
   }
-  write(_CONTROL_PORT, 0);
+  _write(_CONTROL_PORT, (uint8_t*)"\x00", 1);
 }
 
 /*
@@ -195,19 +166,22 @@ void SerialMux<bits>::_control(void) {
  */
 template <uint8_t bits>
 void SerialMux<bits>::_update(void) {
-  if (_serial->available()) {
-    uint8_t port = _read();
-    uint8_t size = _read();
-    if (port == _CONTROL_PORT) {
-      _control();
+  while (_serial->available()) {
+    uint8_t data = _read();
+    if (data == _ESCAPE) {
+      uint8_t port = _read();
+      if (port != _ESCAPE) {
+        _portRx = port;
+        continue;
+      }
+    }
+    if (_portRx == _CONTROL_PORT) {
+      _control(data);
       return;
     }
-    for (uint8_t i = 0; i < size; i++) {
-      _buffer[port].write(_read());
-    }
+    _buffer[_portRx].write(data);
   }
 }
-
 
 /*
  * Blocking read.
@@ -230,11 +204,18 @@ uint8_t SerialMux<bits>::_read(void) {
  * \return Number of bytes written.
  */
 template <uint8_t bits>
-size_t SerialMux<bits>::_write(uint8_t port, uint8_t* data, uint8_t size) {
+void SerialMux<bits>::_write(uint8_t port, uint8_t* data, uint8_t size) {
   if (_enabled || port == _CONTROL_PORT) {
-    _serial->write(port);
-    _serial->write(size);
-    return _serial->write(data, size);
+    if (port != _portTx) {
+      _portTx = port;
+      _serial->write(_ESCAPE);
+      _serial->write(_portTx);
+    }
+    for (uint8_t i = 0; i < size; i++) {
+      if (data[i] == _ESCAPE) {
+        _serial->write(_ESCAPE);
+      }
+      _serial->write(data[i]);
+    }
   }
-  return 0;
 }
