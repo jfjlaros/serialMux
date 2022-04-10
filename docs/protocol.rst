@@ -4,43 +4,38 @@ Protocol
 In this section we describe the serialMux protocol.
 
 
-Packets
--------
+Control messages
+----------------
 
-Communication over a shared serial connection is accomplished by using
-packets. The packet structure is straightforward, every message is prefixed
-by a virtual serial port number and the length of the message.
+Communication over a shared serial connection is accomplished by using control
+messages. Control messages start with an escape character, followed by a
+virtual port number. The virtual port remains active until the next control
+message is received.
 
-.. list-table:: Packet structure.
+.. list-table:: Control messages.
    :header-rows: 1
 
    * - offset
-     - length
      - description
    * - 0
-     - 1
-     - virtual serial port
+     - ``0xff``
    * - 1
-     - 1
-     - size
-   * - 2
-     - size
-     - data
+     - virtual serial port
 
 The first virtual device has port number ``0``, the second ``1``, etc. Port
-number ``255`` is reserved for control messages. The maximum number of virtual
-devices is 254 and the length of the message is limited to 255 bytes.
+number ``254`` is reserved for control messages, which limits the maximum
+number of virtual devices 253.
 
 
-Control messages
-----------------
+Control channel
+---------------
 
 Before any of the virtual devices can be used, the host must be informed
 about the number of virtual devices. To ensure that this initial
 communication is interference free, all virtual devices are disabled on start
 up.
 
-.. list-table:: Control messages.
+.. list-table:: Control channel messages.
    :header-rows: 1
 
    * - message
@@ -67,16 +62,15 @@ up.
 
 A typical initialisation procedure looks as follows.
 
-1. The host asks for the protocol identifier (``0xff, 0x01, 0x00``).
+1. The host asks for the protocol identifier (``0xff, 0xfe, 0x00``).
 2. The device responds with the protocol identifier.
-3. The host asks for the protocol version (``0xff, 0x01, 0x01``).
+3. The host asks for the protocol version (``0x01``).
 4. The device responds with the protocol version.
-5. The host requests the number of virtual serial ports (``0xff, 0x01, 0x02``).
-6. The device sends the number of virtual serial ports (e.g., ``0xff, 0x01,
-   0x02``).
+5. The host requests the number of virtual serial ports (``0x02``).
+6. The device sends the number of virtual serial ports (e.g., ``0x02``).
 7. The host sets up pseudo terminals that connect to the virtual serial ports.
-8. The host send the enable command (``0xff, 0x01, 0x03``).
-9. The device responds with an acknowledgement (``0xff, 0x01, 0x00``).
+8. The host send the enable command (``0x03``).
+9. The device responds with an acknowledgement (``0x00``).
 
 After initialisation the first pseudo terminal can be used to communicate
 with the virtual device on port ``0``, the second pseudo terminal can be used

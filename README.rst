@@ -5,7 +5,7 @@ Serial multiplexer for Arduino
    :target: https://github.com/jfjlaros/serialMux/graphs/commit-activity
 .. image:: https://github.com/jfjlaros/serialMux/actions/workflows/arduino-package.yml/badge.svg
    :target: https://github.com/jfjlaros/serialMux/actions/workflows/arduino-package.yml
-.. image:: https://readthedocs.org/projects/simplerpc/badge/?version=latest
+.. image:: https://readthedocs.org/projects/serialmux/badge/?version=latest
    :target: https://serialMux.readthedocs.io/en/latest
 .. image:: https://img.shields.io/github/release-date/jfjlaros/serialMux.svg
    :target: https://github.com/jfjlaros/serialMux/releases
