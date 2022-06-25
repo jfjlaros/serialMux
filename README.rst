@@ -49,13 +49,13 @@ Create multiple virtual serial devices and use them like the standard
     VSerial serialA(mux);
     VSerial serialB(mux);
 
-    void setup(void) {
+    void setup() {
       Serial.begin(9600);
     }
 
-    void loop(void) {
-      serialA.println("Virtual serial device A.");
-      serialB.println("Virtual serial device B.");
+    void loop() {
+      serialA.println("Virtual device A.");
+      serialB.println("Virtual device B.");
       delay(1000);
     }
 

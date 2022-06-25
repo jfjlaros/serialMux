@@ -27,7 +27,7 @@ The physical serial device must be configured as usual.
 
 .. code-block:: cpp
 
-    void setup(void) {
+    void setup() {
       Serial.begin(9600);
     }
 
@@ -36,7 +36,7 @@ device.
 
 .. code-block:: cpp
 
-    void loop(void) {
+    void loop() {
       serialA.println("Virtual serial device A.");
       serialB.println("Virtual serial device B.");
       delay(1000);
@@ -65,6 +65,6 @@ using ``masterSerial`` instead of ``Serial``.
 
 .. code-block:: cpp
 
-    void setup(void) {
+    void setup() {
       masterSerial.begin(9600);
     }

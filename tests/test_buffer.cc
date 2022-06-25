@@ -48,7 +48,7 @@ TEST_CASE("Read byte, zero bytes remaining", "[buffer][simgle]") {
 }
 
 TEST_CASE("Read multiple bytes, nothing available", "[buffer][multiple]") {
-  uint8_t* data;
+  uint8_t* data{};
   REQUIRE(buffer.read(data, 3) == 0);
 }
 

@@ -4,8 +4,8 @@
 
 #define _PROTOCOL "serialMux"
 #define _VERSION "\x02\x00\x00"
-#define _ESCAPE 0xff
-#define _CONTROL_PORT 0xfe
+#define _ESCAPE (uint8_t)0xff
+#define _CONTROL_PORT (uint8_t)0xfe
 
 // Control commands.
 #define CMD_PROTOCOL '\x00'
@@ -22,9 +22,9 @@ template <uint8_t bits=6>
 class SerialMux {
   public:
     SerialMux(Stream&);
-    ~SerialMux(void);
+    ~SerialMux();
 
-    uint8_t add(void);
+    uint8_t add();
 
     size_t available(uint8_t);
     int read(uint8_t);
@@ -40,9 +40,9 @@ class SerialMux {
     Stream* _serial = NULL;
 
     void _control(uint8_t);
-    void _update(void);
+    void _update();
 
-    uint8_t _read(void);
+    uint8_t _read();
     void _write(uint8_t, uint8_t*, uint8_t);
 };
 
@@ -61,7 +61,7 @@ SerialMux<bits>::SerialMux(Stream& serial) {
  * Destructor.
  */
 template <uint8_t bits>
-SerialMux<bits>::~SerialMux(void) {
+SerialMux<bits>::~SerialMux() {
   free(_buffer);
 }
 
@@ -72,7 +72,7 @@ SerialMux<bits>::~SerialMux(void) {
  * \return New virtual serial port.
  */
 template <uint8_t bits>
-uint8_t SerialMux<bits>::add(void) {
+uint8_t SerialMux<bits>::add() {
   _buffer = (Buffer<bits>*)realloc(
     (void*)_buffer, ++_ports * sizeof(Buffer<bits>));
   _buffer[_ports - 1] = Buffer<bits>();
@@ -165,7 +165,7 @@ void SerialMux<bits>::_control(uint8_t data) {
  * Send incoming data to virtual serial ports.
  */
 template <uint8_t bits>
-void SerialMux<bits>::_update(void) {
+void SerialMux<bits>::_update() {
   while (_serial->available()) {
     uint8_t data = _read();
     if (data == _ESCAPE) {
@@ -189,7 +189,7 @@ void SerialMux<bits>::_update(void) {
  * \return The first byte of incoming data.
  */
 template <uint8_t bits>
-uint8_t SerialMux<bits>::_read(void) {
+uint8_t SerialMux<bits>::_read() {
   while (!_serial->available());
   return _serial->read();
 }

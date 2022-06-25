@@ -8,14 +8,14 @@
 template <uint8_t bits>
 class Buffer {
   public:
-    Buffer(void);
+    Buffer();
 
-    uint8_t available(void);
+    uint8_t available();
     uint8_t read(uint8_t*, uint8_t);
-    int16_t read(void);
+    int16_t read();
     void write(uint8_t*, uint8_t);
     void write(uint8_t);
-    int16_t peek(void);
+    int16_t peek();
 
   private:
     uint8_t _buffer[1ul << bits] = {};
@@ -29,7 +29,7 @@ class Buffer {
  * Constructor.
  */
 template <uint8_t bits>
-Buffer<bits>::Buffer(void) {
+Buffer<bits>::Buffer() {
   _start = 0;
   _end = 0;
 }
@@ -41,7 +41,7 @@ Buffer<bits>::Buffer(void) {
  * \return Number of bytes.
  */
 template <uint8_t bits>
-uint8_t Buffer<bits>::available(void) {
+uint8_t Buffer<bits>::available() {
   return (_end - _start) & _mask;
 }
 
@@ -68,7 +68,7 @@ uint8_t Buffer<bits>::read(uint8_t* data, uint8_t size) {
  * \return The first byte of incoming data or `-1` if no data is available.
  */
 template <uint8_t bits>
-int16_t Buffer<bits>::read(void) {
+int16_t Buffer<bits>::read() {
   if (_start != _end) {
     return _buffer[_start++];
   }
@@ -106,7 +106,7 @@ void Buffer<bits>::write(uint8_t data) {
  * \return The first byte of incoming data or `-1` if no data is available.
  */
 template <uint8_t bits>
-int16_t Buffer<bits>::peek(void) {
+int16_t Buffer<bits>::peek() {
   if (_start != _end) {
     return _buffer[_start];
   }

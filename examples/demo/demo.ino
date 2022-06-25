@@ -5,11 +5,11 @@ VSerial serialA(mux);
 VSerial serialB(mux);
 
 
-void setup(void) {
+void setup() {
   Serial.begin(9600);
 }
 
-void loop(void) {
+void loop() {
   static uint16_t count = 0;
 
   if (serialA.available()) {

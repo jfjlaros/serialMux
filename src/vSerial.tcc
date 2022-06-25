@@ -10,10 +10,10 @@ class VSerial : public Stream {
   public:
     VSerial(SerialMux<bits>&);
 
-    int available(void);
-    int read(void);
+    int available();
+    int read();
     size_t write(uint8_t);
-    int peek(void);
+    int peek();
 
   private:
     SerialMux<bits>* _mux = NULL;
@@ -39,7 +39,7 @@ VSerial<bits>::VSerial(SerialMux<bits>& mux) {
  * \return Number of bytes.
  */
 template <uint8_t bits>
-int VSerial<bits>::available(void) {
+int VSerial<bits>::available() {
   return _mux->available(_port);
 }
 
@@ -49,7 +49,7 @@ int VSerial<bits>::available(void) {
  * \return The first byte of incoming data or `-1` if no data is available.
  */
 template <uint8_t bits>
-int VSerial<bits>::read(void) {
+int VSerial<bits>::read() {
   return _mux->read(_port);
 }
 
@@ -72,6 +72,6 @@ size_t VSerial<bits>::write(uint8_t data) {
  * \return The first byte of incoming data or `-1` if no data is available.
  */
 template <uint8_t bits>
-int VSerial<bits>::peek(void) {
+int VSerial<bits>::peek() {
   return _mux->peek(_port);
 }
