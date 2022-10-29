@@ -9,5 +9,7 @@ Serial multiplexer
 Class definition
 ----------------
 
-.. doxygenclass:: SerialMux
+.. doxygentypedef:: SerialMux
+
+.. doxygenclass:: SerialMux_
    :members:

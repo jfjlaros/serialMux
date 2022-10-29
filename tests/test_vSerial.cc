@@ -2,12 +2,12 @@
 
 #include "../src/vSerial.tcc"
 
-void _checkTx(SerialMux<6>&, char const*, uint8_t);
+void _checkTx(SerialMux_<6>&, char const*, uint8_t);
 
 extern Stream Serial;
-SerialMux<6> _mux(Serial);
-VSerial<6> serialA(_mux);
-VSerial<6> serialB(_mux);
+SerialMux_<6> _mux(Serial);
+VSerial_<6> serialA(_mux);
+VSerial_<6> serialB(_mux);
 
 
 TEST_CASE("No data available for virtual devices", "[serial][empty]") {
@@ -29,8 +29,8 @@ TEST_CASE(
 
 TEST_CASE(
     "Write byte to virtual devices, mux disabled", "[serial][empty]") {
-  REQUIRE(serialA.write('\x00') == 1);
-  REQUIRE(serialB.write('\x00') == 1);
+  REQUIRE(serialA.write(0x00) == 1);
+  REQUIRE(serialB.write(0x00) == 1);
 }
 
 TEST_CASE("Enable virtual devices", "[serial][protocol]") {
@@ -39,9 +39,9 @@ TEST_CASE("Enable virtual devices", "[serial][protocol]") {
 }
 
 TEST_CASE("Write byte to virtual devices", "[serial][single]") {
-  REQUIRE(serialA.write('\x01') == 1);
+  REQUIRE(serialA.write(0x01) == 1);
   _checkTx(_mux, "\xff\x00\x01", 3);
-  REQUIRE(serialB.write('\x02') == 1);
+  REQUIRE(serialB.write(0x02) == 1);
   _checkTx(_mux, "\xff\x01\x02", 3);
 }
 

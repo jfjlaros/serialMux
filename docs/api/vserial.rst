@@ -9,5 +9,7 @@ Virtual serial device
 Class definition
 ----------------
 
-.. doxygenclass:: VSerial
+.. doxygentypedef:: VSerial
+
+.. doxygenclass:: VSerial_
    :members:
