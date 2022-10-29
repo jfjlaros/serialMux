@@ -1,4 +1,5 @@
-INPUT                  = ../src/
+INPUT                  = src/
+OUTPUT_DIRECTORY       = docs/
 
 GENERATE_HTML          = NO
 GENERATE_LATEX         = NO
