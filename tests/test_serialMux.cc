@@ -9,7 +9,7 @@ SerialMux_<6> mux(Serial);
 void _checkTx(
     SerialMux_<6>& mux, char const* const data, uint8_t const size) {
   mux.available(0);
-  for (uint8_t i = 0; i < size; i++) {
+  for (uint8_t i {0}; i < size; i++) {
     REQUIRE(Serial.inspect<char>() == data[i]);
   }
   Serial.reset();
@@ -107,12 +107,12 @@ TEST_CASE("Read byte from ports, zero bytes remaining", "[mux][single]") {
 
 TEST_CASE("Write multiple bytes to ports", "[mux][multiple]") {
   {
-    uint8_t const data[] = {0x01, 0x02, 0x03};
+    uint8_t const data[] {0x01, 0x02, 0x03};
     mux.write_(0, data, 3);
     _checkTx(mux, "\xff\x00\x01\x02\x03", 5);
   }
   {
-    uint8_t const data[] = {0x04, 0x05, 0x06};
+    uint8_t const data[] {0x04, 0x05, 0x06};
     mux.write_(1, data, 3);
     _checkTx(mux, "\xff\x01\x04\x05\x06", 5);
   }

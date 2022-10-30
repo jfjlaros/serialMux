@@ -44,8 +44,8 @@ public:
   int peek();
 
 private:
-  SerialMux_<bits>* _mux = nullptr;
-  uint8_t _port = 0;
+  SerialMux_<bits>* _mux {nullptr};
+  uint8_t _port {0};
 };
 
 using VSerial = VSerial_<>;  //!< Virtual serial device.

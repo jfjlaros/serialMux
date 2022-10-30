@@ -48,25 +48,25 @@ TEST_CASE("Read byte, zero bytes remaining", "[buffer][simgle]") {
 }
 
 TEST_CASE("Read multiple bytes, nothing available", "[buffer][multiple]") {
-  uint8_t* data{};
+  uint8_t* data {};
   REQUIRE(buffer.read(data, 3) == 0);
 }
 
 TEST_CASE("Write multiple bytes", "[buffer][multiple]") {
-  uint8_t data[] = "abc";
+  uint8_t data[] {"abc"};
   buffer.write(data, 3);
   REQUIRE(buffer.available() == 3);
 }
 
 TEST_CASE("Read multiple bytes", "[buffer][multiple]") {
-  uint8_t data[3]{};
+  uint8_t data[3] {};
   REQUIRE(buffer.read(data, 3) == 3);
   REQUIRE(!memcmp(data, "abc", 3));
   REQUIRE(buffer.available() == 0);
 }
 
 TEST_CASE("Read too many bytes", "[buffer][multiple]") {
-  uint8_t data[4]{};
+  uint8_t data[4] {};
   buffer.write(data, 3);
   REQUIRE(buffer.read(data, 4) == 3);
   REQUIRE(buffer.available() == 0);

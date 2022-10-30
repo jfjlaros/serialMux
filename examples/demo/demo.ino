@@ -10,7 +10,7 @@ void setup() {
 }
 
 void loop() {
-  static uint16_t count = 0;
+  static uint16_t count {0};
 
   if (serialA.available()) {
     serialA.print("received: ");

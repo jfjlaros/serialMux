@@ -2,18 +2,18 @@
 
 #include "buffer.tcc"
 
-uint8_t const protocol_[] =  {'s', 'e', 'r', 'i', 'a', 'l', 'M', 'u', 'x'};
-uint8_t const version_[] =  {2, 0, 0};
-uint8_t const escape_ = 0xff;
-uint8_t const controlPort_ = 0xfe;
+uint8_t const protocol_[] {'s', 'e', 'r', 'i', 'a', 'l', 'M', 'u', 'x'};
+uint8_t const version_[] {2, 0, 0};
+uint8_t const escape_ {0xff};
+uint8_t const controlPort_ {0xfe};
 
 // Control commands.
-uint8_t const cmdProtocol_ = 0x00;
-uint8_t const cmdVersion_ = 0x01;
-uint8_t const cmdGet_ports_ = 0x02;
-uint8_t const cmdEnable_ = 0x03;
-uint8_t const cmdDisable_ = 0x04;
-uint8_t const cmdReset_ = 0x05;
+uint8_t const cmdProtocol_ {0x00};
+uint8_t const cmdVersion_ {0x01};
+uint8_t const cmdGet_ports_ {0x02};
+uint8_t const cmdEnable_ {0x03};
+uint8_t const cmdDisable_ {0x04};
+uint8_t const cmdReset_ {0x05};
 
 /*! Serial multiplexer.
  *
@@ -79,12 +79,12 @@ private:
   uint8_t read_() const;
   void write_(uint8_t const, uint8_t const* const, uint8_t const);
 
-  Buffer<bits>* buffer_ = nullptr;
-  bool enabled_ = false;
-  uint8_t portRx_ = controlPort_;
-  uint8_t portTx_ = controlPort_;
-  uint8_t ports_ = 0;
-  Stream* serial_ = nullptr;
+  Buffer<bits>* buffer_ {nullptr};
+  bool enabled_ {false};
+  uint8_t portRx_ {controlPort_};
+  uint8_t portTx_ {controlPort_};
+  uint8_t ports_ {0};
+  Stream* serial_ {nullptr};
 };
 
 using SerialMux = SerialMux_<>;  //!< Serial multiplexer.
@@ -103,7 +103,7 @@ SerialMux_<bits>::~SerialMux_() {
 
 template <uint8_t bits>
 uint8_t SerialMux_<bits>::add() {
-  Buffer<bits>* newBuffer = new Buffer<bits>[++ports_];
+  Buffer<bits>* newBuffer {new Buffer<bits>[++ports_]};
   memcpy(newBuffer, buffer_, (ports_ - 1) * sizeof(Buffer<bits>));
   delete[] buffer_;
   buffer_ = newBuffer;
@@ -160,7 +160,7 @@ void SerialMux_<bits>::control_(uint8_t const data) {
     case cmdReset_:
       break;
   }
-  uint8_t const data_ = 0;
+  uint8_t const data_ {0};
   write_(controlPort_, &data_, 1);
 }
 
@@ -170,9 +170,9 @@ void SerialMux_<bits>::control_(uint8_t const data) {
 template <uint8_t bits>
 void SerialMux_<bits>::update_() {
   while (serial_->available()) {
-    uint8_t data = read_();
+    uint8_t data {read_()};
     if (data == escape_) {
-      uint8_t port = read_();
+      uint8_t port {read_()};
       if (port != escape_) {
         portRx_ = port;
         continue;
@@ -215,7 +215,7 @@ void SerialMux_<bits>::write_(
       serial_->write(escape_);
       serial_->write(portTx_);
     }
-    for (uint8_t i = 0; i < size; i++) {
+    for (uint8_t i {0}; i < size; i++) {
       if (data[i] == escape_) {
         serial_->write(escape_);
       }
