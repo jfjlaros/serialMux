@@ -34,7 +34,7 @@ public:
    *
    * \return Number of bytes written.
    */
-  size_t write(uint8_t);
+  size_t write(uint8_t data);
 
   /*! Return the next byte of incoming data without removing it from the
    * buffer.
@@ -44,37 +44,35 @@ public:
   int peek();
 
 private:
-  SerialMux_<bits>* _mux {nullptr};
-  uint8_t _port {0};
+  SerialMux_<bits>* mux_ {nullptr};
+  uint8_t port_ {0};
 };
 
 using VSerial = VSerial_<>;  //!< Virtual serial device.
 
 
 template <uint8_t bits>
-VSerial_<bits>::VSerial_(SerialMux_<bits>& mux) {
-  _mux = &mux;
-  _port = _mux->add();
-}
+VSerial_<bits>::VSerial_(SerialMux_<bits>& mux)
+    : mux_ {&mux}, port_ {mux.add()} {}
 
 
 template <uint8_t bits>
 int VSerial_<bits>::available() {
-  return _mux->available(_port);
+  return mux_->available(port_);
 }
 
 template <uint8_t bits>
 int VSerial_<bits>::read() {
-  return _mux->read(_port);
+  return mux_->read(port_);
 }
 
 template <uint8_t bits>
 size_t VSerial_<bits>::write(uint8_t data) {
-  _mux->write(_port, data);
+  mux_->write(port_, data);
   return 1;
 }
 
 template <uint8_t bits>
 int VSerial_<bits>::peek() {
-  return _mux->peek(_port);
+  return mux_->peek(port_);
 }

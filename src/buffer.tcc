@@ -26,7 +26,7 @@ public:
    *
    * \return Number of bytes read.
    */
-  uint8_t read(uint8_t* const, uint8_t const);
+  uint8_t read(uint8_t* const data, uint8_t const size);
 
   /*! Read one byte of data.
    *
@@ -41,13 +41,13 @@ public:
    *
    * \return Number of bytes written.
    */
-  void write(uint8_t* const, uint8_t const);
+  void write(uint8_t* const data, uint8_t const size);
 
   /*! Write one byte of data.
    *
    * \param[in] data Data.
    */
-  void write(uint8_t const);
+  void write(uint8_t const data);
 
   /*! Return the next byte of incoming data without removing it from the
    * buffer.
@@ -65,10 +65,7 @@ private:
 
 
 template <uint8_t bits>
-Buffer<bits>::Buffer() {
-  start_ = 0;
-  end_ = 0;
-}
+Buffer<bits>::Buffer() : start_ {0}, end_ {0} {}
 
 
 template <uint8_t bits>

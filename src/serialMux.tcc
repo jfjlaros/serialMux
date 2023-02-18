@@ -7,13 +7,7 @@ uint8_t const version_[] {2, 0, 0};
 uint8_t const escape_ {0xff};
 uint8_t const controlPort_ {0xfe};
 
-// Control commands.
-uint8_t const cmdProtocol_ {0x00};
-uint8_t const cmdVersion_ {0x01};
-uint8_t const cmdGet_ports_ {0x02};
-uint8_t const cmdEnable_ {0x03};
-uint8_t const cmdDisable_ {0x04};
-uint8_t const cmdReset_ {0x05};
+enum Command : uint8_t {protocol, version, getPorts, enable, disable, reset};
 
 /*! Serial multiplexer.
  *
@@ -26,9 +20,14 @@ public:
    *
    * \param[in] serial Serial device.
    */
-  SerialMux_(Stream&);
+  SerialMux_(Stream& serial);
+
+  SerialMux_(SerialMux_ const&) = delete;
 
   ~SerialMux_();
+
+
+  SerialMux_& operator =(SerialMux_ const&) = delete;
 
 
   /*! Add a virtual serial device.
@@ -44,7 +43,7 @@ public:
    *
    * \return Number of bytes.
    */
-  size_t available(uint8_t const);
+  size_t available(uint8_t const port);
 
   /*! Read one byte of data.
    *
@@ -52,7 +51,7 @@ public:
    *
    * \return The first byte of incoming data or `-1` if no data is available.
    */
-  int read(uint8_t const);
+  int read(uint8_t const port);
 
   /*! Write one byte of data.
    *
@@ -61,7 +60,7 @@ public:
    *
    * \return Number of bytes written.
    */
-  void write(uint8_t const, uint8_t const);
+  void write(uint8_t const port, uint8_t const data);
 
   /*! Return the next byte of incoming data without removing it from the
    * buffer.
@@ -70,7 +69,7 @@ public:
    *
    * \return The first byte of incoming data or `-1` if no data is available.
    */
-  int peek(uint8_t const);
+  int peek(uint8_t const port);
 
 private:
   void control_(uint8_t const);
@@ -136,28 +135,26 @@ int SerialMux_<bits>::peek(uint8_t const port) {
 }
 
 
-/*
- * Control command handling.
- */
+/* Control command handling. */
 template <uint8_t bits>
 void SerialMux_<bits>::control_(uint8_t const data) {
-  switch (data) {
-    case cmdProtocol_:
+  switch (static_cast<Command>(data)) {
+    case protocol:
       write_(controlPort_, protocol_, sizeof(protocol_));
       return;
-    case cmdVersion_:
+    case version:
       write_(controlPort_, version_, sizeof(version_));
       return;
-    case cmdGet_ports_:
+    case getPorts:
       write_(controlPort_, &ports_, 1);
       return;
-    case cmdEnable_:
+    case enable:
       enabled_ = true;
       break;
-    case cmdDisable_:
+    case disable:
       enabled_ = false;
       break;
-    case cmdReset_:
+    case reset:
       break;
   }
   uint8_t const data_ {0};
@@ -197,8 +194,7 @@ uint8_t SerialMux_<bits>::read_() const {
   return serial_->read();
 }
 
-/*
- * Write `size` bytes of data.
+/* Write `size` bytes of data.
  *
  * \param[in] port Virtual serial port.
  * \param[in] data Buffer containing `size` bytes of data.

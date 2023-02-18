@@ -7,7 +7,7 @@ FIXTURES := arduino-serial-fixture/src/Arduino
 
 CC := g++
 CC_ARGS := -std=c++11 -Wall -Wextra -pedantic -fno-access-control \
-  -I arduino-serial-fixture/src -I plugins
+  -I arduino-serial-fixture/src
 
 
 OBJS := $(addsuffix .o, $(SRC) $(TESTS) $(FIXTURES))
