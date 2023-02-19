@@ -2,7 +2,7 @@
 
 #include "../src/buffer.tcc"
 
-Buffer<6> buffer;
+Buffer<6> buffer {};
 
 
 TEST_CASE("Empty buffer", "[buffer][empty]") {
