@@ -141,17 +141,18 @@ uint8_t SerialMux_<maxPorts, bits>::read_() const {
 template <uint8_t maxPorts, uint8_t bits>
 void SerialMux_<maxPorts, bits>::write_(
     uint8_t const port, uint8_t const* const data, uint8_t const size) {
-  if (enabled_ || port == controlPort_) {
-    if (port != portTx_) {
-      portTx_ = port;
+  if (not enabled_ && port != controlPort_) {
+    return;
+  }
+  if (port != portTx_) {
+    portTx_ = port;
+    serial_->write(escape_);
+    serial_->write(portTx_);
+  }
+  for (uint8_t i {0}; i < size; i++) {
+    if (data[i] == escape_) {
       serial_->write(escape_);
-      serial_->write(portTx_);
     }
-    for (uint8_t i {0}; i < size; i++) {
-      if (data[i] == escape_) {
-        serial_->write(escape_);
-      }
-      serial_->write(data[i]);
-    }
+    serial_->write(data[i]);
   }
 }
