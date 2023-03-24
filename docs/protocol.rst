@@ -24,7 +24,7 @@ message is received.
 
 The first virtual device has port number ``0``, the second ``1``, etc. Port
 number ``254`` is reserved for control messages, which limits the maximum
-number of virtual devices 253.
+number of virtual devices to 254.
 
 
 Control channel
