@@ -41,22 +41,22 @@ up.
    * - message
      - response
      - description
-   * - 0
+   * - ``0x00``
      - ``serialMux``
      - Protocol identifier.
-   * - 1
-     - ``\x01\x00\x00`` (example)
+   * - ``0x01``
+     - ``\x02\x00\x00`` (example)
      - Version (major, minor, patch).
-   * - 2
+   * - ``0x02``
      - Number of virtual serial ports.
      - Get the number of virtual serial ports.
-   * - 3
+   * - ``0x03``
      - ``0x00``
      - Enable multiplexer.
-   * - 4
+   * - ``0x04``
      - ``0x00``
      - Disable multiplexer.
-   * - 5
+   * - ``0x05``
      - ``0x00``
      - Reset.
 
