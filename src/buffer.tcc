@@ -76,7 +76,7 @@ uint8_t Buffer<bits>::available() const {
 template <uint8_t bits>
 uint8_t Buffer<bits>::read(uint8_t* const data, uint8_t const size) {
   uint8_t size_ {min(size, available())};
-  for (uint8_t i {0}; i < size_; i++) {
+  for (uint8_t i {0}; i < size_; ++i) {
     data[i] = buffer_[start_++];
   }
   return size_;
@@ -92,7 +92,7 @@ int16_t Buffer<bits>::read() {
 
 template <uint8_t bits>
 void Buffer<bits>::write(uint8_t* const data, uint8_t size) {
-  for (uint8_t i {0}; i < size; i++) {
+  for (uint8_t i {0}; i < size; ++i) {
     buffer_[end_++] = data[i];
   }
 }

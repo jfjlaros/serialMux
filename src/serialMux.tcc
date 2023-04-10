@@ -149,7 +149,7 @@ void SerialMux_<maxPorts, bits>::write_(
     serial_->write(escape_);
     serial_->write(portTx_);
   }
-  for (uint8_t i {0}; i < size; i++) {
+  for (uint8_t i {0}; i < size; ++i) {
     if (data[i] == escape_) {
       serial_->write(escape_);
     }
