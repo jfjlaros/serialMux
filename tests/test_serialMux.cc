@@ -46,6 +46,8 @@ TEST_CASE("Write byte to ports, mux disabled", "[mux][empty]") {
 
 TEST_CASE("Query protocol", "[mux][protocol]") {
   Serial.prepare('\x00');
+  mux.update();
+  REQUIRE(Serial.tx == 9);
   checkTx(mux, "serialMux", 9);
 }
 
